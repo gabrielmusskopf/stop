@@ -31,14 +31,9 @@ public class WordReceivedMessage {
 		word = new String(readN(data, wordSize, 2));
 	}
 
-	// 0 0 0 0
-	// 4 -
-	//
 	private byte[] readN(byte[] data, int n, int starting) {
 		byte[] buff = new byte[n];
-		for (int i = 0; i < buff.length; i++) {
-			buff[i] = data[starting + i];
-		}
+		System.arraycopy(data, starting, buff, 0, buff.length);
 		return buff;
 	}
 

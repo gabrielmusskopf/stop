@@ -14,7 +14,7 @@ import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 
 @Slf4j
 @RequiredArgsConstructor
-public class Player implements Readable {
+public class Player implements AutoCloseable, Readable {
 
 	private final String name = "player";
 	private final Socket socket;
@@ -54,10 +54,17 @@ public class Player implements Readable {
 	public void disconnect() throws IOException {
 		send(MessageFactory.closeConnection());
 		socket.close();
+		in.close();
+		out.close();
 	}
 
 	public String getHost() {
 		return socket.getInetAddress().getHostAddress();
+	}
+
+	@Override
+	public void close() throws IOException {
+		disconnect();
 	}
 
 	//	@Override

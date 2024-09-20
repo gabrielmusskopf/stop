@@ -82,9 +82,7 @@ public class Game implements Runnable {
 	}
 
 	private void gameLoop() throws InterruptedException, IOException {
-		Thread.sleep(5 * 1000);
 		while (hasRounds()) {
-
 			var round = nextRound();
 			log.info("A round {} started", currentRound);
 
@@ -93,9 +91,7 @@ public class Game implements Runnable {
 
 
 			log.info("A round {} ended", currentRound);
-
 		}
-		Thread.sleep(5 * 1000);
 	}
 
 	private void broadcast(Message message) throws IOException {
