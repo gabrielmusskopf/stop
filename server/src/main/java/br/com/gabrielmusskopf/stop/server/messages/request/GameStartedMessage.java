@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import br.com.gabrielmusskopf.stop.server.Category;
 import br.com.gabrielmusskopf.stop.server.MessageType;
 import br.com.gabrielmusskopf.stop.server.messages.Message;
+import br.com.gabrielmusskopf.stop.server.messages.MessageBuilder;
 
 /*
 Header:
@@ -18,21 +19,16 @@ Body:
 @RequiredArgsConstructor
 public class GameStartedMessage implements Message {
 
-	private final MessageType messageType = MessageType.GAME_STARTED;
 	private final List<Category> categories = List.of( // static for now
 			Category.NAME, Category.ANIMAL, Category.COLOR, Category.WORD, Category.LOCATION, Category.OBJECT
 	);
 
+	@Override
 	public byte[] serialize() {
-		var buffer = new byte[3];
-
-		buffer[0] = 3;
-		buffer[1] = (byte) messageType.getCode();
-
 		int c = categories.stream().map(Category::getCode).reduce(0, Integer::sum);
-		buffer[2] = (byte) c;
 
-		return buffer;
+		return MessageBuilder.of(MessageType.GAME_STARTED)
+				.put(c)
+				.build();
 	}
-
 }

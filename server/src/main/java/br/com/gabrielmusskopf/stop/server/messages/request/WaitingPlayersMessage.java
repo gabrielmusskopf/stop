@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import br.com.gabrielmusskopf.stop.server.MessageType;
 import br.com.gabrielmusskopf.stop.server.messages.Message;
+import br.com.gabrielmusskopf.stop.server.messages.MessageBuilder;
 
 /*
 Header:
@@ -15,15 +16,8 @@ Body:
 @RequiredArgsConstructor
 public class WaitingPlayersMessage implements Message {
 
-	private final MessageType messageType = MessageType.WAITING_PLAYERS;
-
 	public byte[] serialize() {
-		var buffer = new byte[2];
-
-		buffer[0] = 2;
-		buffer[1] = (byte) messageType.getCode();
-
-		return buffer;
+		return MessageBuilder.of(MessageType.WAITING_PLAYERS).build();
 	}
 
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import br.com.gabrielmusskopf.stop.server.MessageType;
 import br.com.gabrielmusskopf.stop.server.messages.Message;
+import br.com.gabrielmusskopf.stop.server.messages.MessageBuilder;
 
 /*
 Header:
@@ -16,17 +17,12 @@ Body:
 @RequiredArgsConstructor
 public class PlayerConnectedMessage implements Message {
 
-	private final MessageType messageType = MessageType.PLAYER_CONNECTED;
 	private final ResponseStatus status;
 
 	public byte[] serialize() {
-		var buffer = new byte[3];
-
-		buffer[0] = 3;
-		buffer[1] = (byte) messageType.getCode();
-		buffer[2] = (byte) status.getCode();
-
-		return buffer;
+		return MessageBuilder.of(MessageType.PLAYER_CONNECTED)
+				.put(status.getCode())
+				.build();
 	}
 
 }
