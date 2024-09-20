@@ -89,9 +89,10 @@ public class Game implements Runnable {
 			broadcast(MessageFactory.roundStarted(round.getLetter()));
 			round.start();
 
-
 			log.info("A round {} ended", currentRound);
+			broadcast(MessageFactory.roundFinished());
 		}
+
 	}
 
 	private void broadcast(Message message) throws IOException {

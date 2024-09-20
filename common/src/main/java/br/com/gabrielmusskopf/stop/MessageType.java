@@ -12,7 +12,8 @@ public enum MessageType {
 	GAME_ENDED(4),
 	CONNECTION_CLOSED(5),
 	ROUND_STARTED(6),
-	CATEGORY_WORD(7);
+	ROUND_FINISHED(7),
+	CATEGORY_WORD(8);
 
 	private final int code;
 

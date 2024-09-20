@@ -50,7 +50,6 @@ public class Game {
 					var m = new RoundStartedMessage(msg.getData());
 					var round = new Round(m.getLetter(), player, categories);
 					round.start();
-					return;
 				}
 				case GAME_ENDED -> {
 					log.info("Game has ended. Thanks for playing :)");

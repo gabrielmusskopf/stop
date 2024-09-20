@@ -5,6 +5,8 @@ import java.net.Socket;
 
 import lombok.extern.slf4j.Slf4j;
 
+import br.com.gabrielmusskopf.stop.client.exception.BaseException;
+
 @Slf4j
 public class StopClient {
 
@@ -19,6 +21,8 @@ public class StopClient {
 			log.info("The joy is over, see you space cowboy");
 		} catch (IOException e) {
 			log.error("An exception occurred: {}", e.getLocalizedMessage());
+		} catch (BaseException e) {
+			// That's fine
 		}
 	}
 }

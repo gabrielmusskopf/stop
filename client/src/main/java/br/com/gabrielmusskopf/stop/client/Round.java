@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.RawMessage;
 import br.com.gabrielmusskopf.stop.client.exception.ConnectionClosedException;
+import br.com.gabrielmusskopf.stop.client.exception.GameEndedException;
 
 @Slf4j
 @Getter
@@ -38,20 +39,25 @@ public class Round {
 		// round loop logic
 		log.info("A new round started! Letter is '{}'", letter);
 
-		var executor = Executors.newFixedThreadPool(1);
+		var executor = Executors.newSingleThreadExecutor();
 		executor.submit(this::sendUserAnswers);
 
 		while (true) {
 			var msg = RawMessage.readRawMessage(player);
 			switch (msg.getType()) {
-				case GAME_ENDED -> {
-					log.info("Game ended");
+				case ROUND_FINISHED -> {
+					log.info("Round finished");
 					executor.shutdownNow();
 					return;
 				}
+				case GAME_ENDED -> {
+					log.info("Game ended.");
+					executor.shutdownNow();
+					throw new GameEndedException();
+				}
 				case CONNECTION_CLOSED -> {
 					log.info("Client was disconnected by the server");
-					executor.shutdown();
+					executor.shutdownNow();
 					throw new ConnectionClosedException();
 				}
 				default -> log.error("Unexpected {} message. Ignoring.", msg.getType());
@@ -95,6 +101,8 @@ public class Round {
 			log.error(e.getMessage());
 		} catch (InterruptedException e) {
 			// Expected interruption by the main thread
+			// println after the last ">"
+			System.out.println();
 		}
 	}
 
