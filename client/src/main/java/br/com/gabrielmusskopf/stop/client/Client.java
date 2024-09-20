@@ -7,12 +7,13 @@ import java.net.Socket;
 
 import lombok.extern.slf4j.Slf4j;
 
+import br.com.gabrielmusskopf.stop.MessageStatus;
+import br.com.gabrielmusskopf.stop.MessageType;
+import br.com.gabrielmusskopf.stop.RawMessage;
 import br.com.gabrielmusskopf.stop.client.exception.ConnectionClosedException;
 import br.com.gabrielmusskopf.stop.client.exception.UnexpectedMessageException;
 import br.com.gabrielmusskopf.stop.client.message.GameStartedMessage;
-import br.com.gabrielmusskopf.stop.client.message.MessageType;
 import br.com.gabrielmusskopf.stop.client.message.PlayerConnectedMessage;
-import br.com.gabrielmusskopf.stop.client.message.RequestStatus;
 import br.com.gabrielmusskopf.stop.client.message.RoundStartedMessage;
 
 @Slf4j
@@ -75,7 +76,7 @@ public class Client {
 			}
 
 			var message = new PlayerConnectedMessage(msg.getData());
-			if (!RequestStatus.OK.equals(message.getStatus())) {
+			if (!MessageStatus.OK.equals(message.getStatus())) {
 				throw new UnexpectedMessageException("Connection request was not successful");
 			}
 

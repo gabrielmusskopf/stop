@@ -1,11 +1,9 @@
-package br.com.gabrielmusskopf.stop.server.messages;
+package br.com.gabrielmusskopf.stop;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 import lombok.RequiredArgsConstructor;
-
-import br.com.gabrielmusskopf.stop.server.MessageType;
 
 /*
 Header:

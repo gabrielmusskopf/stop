@@ -2,9 +2,9 @@ package br.com.gabrielmusskopf.stop.server.messages.request;
 
 import lombok.RequiredArgsConstructor;
 
-import br.com.gabrielmusskopf.stop.server.MessageType;
-import br.com.gabrielmusskopf.stop.server.messages.Message;
-import br.com.gabrielmusskopf.stop.server.messages.MessageBuilder;
+import br.com.gabrielmusskopf.stop.Message;
+import br.com.gabrielmusskopf.stop.MessageBuilder;
+import br.com.gabrielmusskopf.stop.MessageType;
 
 /*
 Header:

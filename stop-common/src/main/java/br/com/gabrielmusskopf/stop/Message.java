@@ -1,4 +1,4 @@
-package br.com.gabrielmusskopf.stop.server.messages;
+package br.com.gabrielmusskopf.stop;
 
 public interface Message {
 

@@ -9,8 +9,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import br.com.gabrielmusskopf.stop.Category;
+import br.com.gabrielmusskopf.stop.Message;
 import br.com.gabrielmusskopf.stop.server.exception.IllegalGameException;
-import br.com.gabrielmusskopf.stop.server.messages.Message;
 import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 
 @Slf4j
@@ -23,9 +24,12 @@ public class Game implements Runnable {
 	// jogador1 - categoria2 - palavra	private final Player player1;
 	// private final Map<Player, Map<String, String>> categoryAnswers;
 
+	private final List<Category> categories = List.of( // static for now
+			Category.NAME, Category.ANIMAL, Category.COLOR, Category.WORD, Category.LOCATION, Category.OBJECT
+	);
+
 	private final int roundsCount;
 	private final List<Round> rounds = new ArrayList<>();
-	private final List<String> categories = List.of("nome", "cep");
 	private final String identifier;
 	private Player player1;
 	private Player player2;
@@ -62,7 +66,7 @@ public class Game implements Runnable {
 		try {
 			log.info("The game '{}' is starting. Ongoing games: {}", identifier, GamePool.ongoingGamesCount());
 			gameState = GameState.RUNNING;
-			broadcast(MessageFactory.gameStarted());
+			broadcast(MessageFactory.gameStarted(categories));
 
 			gameLoop();
 
@@ -80,10 +84,15 @@ public class Game implements Runnable {
 	private void gameLoop() throws InterruptedException, IOException {
 		Thread.sleep(5 * 1000);
 		while (hasRounds()) {
+
 			var round = nextRound();
 			log.info("A round {} started", currentRound);
+
 			broadcast(MessageFactory.roundStarted(round.getLetter()));
+
+
 			log.info("A round {} ended", currentRound);
+
 		}
 		Thread.sleep(5 * 1000);
 	}
@@ -148,7 +157,7 @@ public class Game implements Runnable {
 
 	public Round nextRound() {
 		currentRound++;
-		var round = new Round(generateRoundLetter());
+		var round = new Round(generateRoundLetter(), categories, player1, player2);
 		this.rounds.add(round);
 		return round;
 	}

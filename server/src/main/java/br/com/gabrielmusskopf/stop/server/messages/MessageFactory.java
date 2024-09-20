@@ -1,25 +1,30 @@
 package br.com.gabrielmusskopf.stop.server.messages;
 
+import java.util.List;
+
+import br.com.gabrielmusskopf.stop.Category;
+import br.com.gabrielmusskopf.stop.Message;
+import br.com.gabrielmusskopf.stop.MessageStatus;
 import br.com.gabrielmusskopf.stop.server.messages.request.ConnectionClosedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.GameEndedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.GameStartedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.RoundStartedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.WaitingPlayersMessage;
 import br.com.gabrielmusskopf.stop.server.messages.response.PlayerConnectedMessage;
-import br.com.gabrielmusskopf.stop.server.messages.response.ResponseStatus;
 
 public abstract class MessageFactory {
 
 	public static Message playerConnectedSuccessfully() {
-		return new PlayerConnectedMessage(ResponseStatus.OK);
+		return new PlayerConnectedMessage(MessageStatus.OK);
 	}
 
 	public static Message waitingPlayer() {
 		return new WaitingPlayersMessage();
 	}
 
-	public static Message gameStarted() {
-		return new GameStartedMessage();
+	// TODO: move to another message
+	public static Message gameStarted(List<Category> categories) {
+		return new GameStartedMessage(categories);
 	}
 
 	public static Message gameEnded() {

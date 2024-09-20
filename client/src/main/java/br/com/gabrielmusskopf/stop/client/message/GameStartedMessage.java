@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import br.com.gabrielmusskopf.stop.client.Category;
+import br.com.gabrielmusskopf.stop.Category;
 
 /*
 Header:

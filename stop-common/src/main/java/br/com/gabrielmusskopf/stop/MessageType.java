@@ -1,4 +1,4 @@
-package br.com.gabrielmusskopf.stop.client.message;
+package br.com.gabrielmusskopf.stop;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,8 @@ public enum MessageType {
 	GAME_STARTED(3),
 	GAME_ENDED(4),
 	CONNECTION_CLOSED(5),
-	ROUND_STARTED(6);
+	ROUND_STARTED(6),
+	WORD_RECEIVED(7);
 
 	private final int code;
 

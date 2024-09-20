@@ -1,15 +1,14 @@
 package br.com.gabrielmusskopf.stop.server;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import br.com.gabrielmusskopf.stop.server.messages.Message;
+import br.com.gabrielmusskopf.stop.Message;
 import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 
 @Slf4j
@@ -18,12 +17,12 @@ public class Player {
 
 	private final String name = "player";
 	private final Socket socket;
-	private final BufferedReader in;
+	private final BufferedInputStream in;
 	private final DataOutputStream out;
 
 	public Player(Socket socket) throws IOException {
 		this.socket = socket;
-		this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+		this.in = new BufferedInputStream(this.socket.getInputStream());
 		this.out = new DataOutputStream(this.socket.getOutputStream());
 	}
 
@@ -35,6 +34,16 @@ public class Player {
 			log.error("Could not write message to client {}. Closing connection.", getHost());
 			disconnect();
 		}
+	}
+
+	public int read() throws IOException {
+		return in.read();
+	}
+
+	public byte[] read(int size) throws IOException {
+		var buff = new byte[size];
+		in.read(buff, 0, size);
+		return buff;
 	}
 
 	public boolean isConnected() {

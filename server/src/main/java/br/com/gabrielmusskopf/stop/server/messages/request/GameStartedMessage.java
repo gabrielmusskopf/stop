@@ -4,10 +4,10 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
-import br.com.gabrielmusskopf.stop.server.Category;
-import br.com.gabrielmusskopf.stop.server.MessageType;
-import br.com.gabrielmusskopf.stop.server.messages.Message;
-import br.com.gabrielmusskopf.stop.server.messages.MessageBuilder;
+import br.com.gabrielmusskopf.stop.Category;
+import br.com.gabrielmusskopf.stop.Message;
+import br.com.gabrielmusskopf.stop.MessageBuilder;
+import br.com.gabrielmusskopf.stop.MessageType;
 
 /*
 Header:
@@ -20,9 +20,7 @@ Body:
 @RequiredArgsConstructor
 public class GameStartedMessage implements Message {
 
-	private final List<Category> categories = List.of( // static for now
-			Category.NAME, Category.ANIMAL, Category.COLOR, Category.WORD, Category.LOCATION, Category.OBJECT
-	);
+	private final List<Category> categories;
 
 	@Override
 	public byte[] serialize() {

@@ -3,6 +3,8 @@ package br.com.gabrielmusskopf.stop.client.message;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import br.com.gabrielmusskopf.stop.MessageStatus;
+
 /*
 Header:
 - status (1 byte)
@@ -13,10 +15,10 @@ Body:
 @RequiredArgsConstructor
 public class PlayerConnectedMessage {
 
-	private final RequestStatus status;
+	private final MessageStatus status;
 
 	public PlayerConnectedMessage(byte[] data) {
-		this.status = RequestStatus.fromCode(data[0]);
+		this.status = MessageStatus.fromCode(data[0]);
 	}
 
 }

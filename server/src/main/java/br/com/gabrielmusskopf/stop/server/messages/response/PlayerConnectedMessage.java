@@ -2,9 +2,10 @@ package br.com.gabrielmusskopf.stop.server.messages.response;
 
 import lombok.RequiredArgsConstructor;
 
-import br.com.gabrielmusskopf.stop.server.MessageType;
-import br.com.gabrielmusskopf.stop.server.messages.Message;
-import br.com.gabrielmusskopf.stop.server.messages.MessageBuilder;
+import br.com.gabrielmusskopf.stop.Message;
+import br.com.gabrielmusskopf.stop.MessageBuilder;
+import br.com.gabrielmusskopf.stop.MessageStatus;
+import br.com.gabrielmusskopf.stop.MessageType;
 
 /*
 Header:
@@ -17,7 +18,7 @@ Body:
 @RequiredArgsConstructor
 public class PlayerConnectedMessage implements Message {
 
-	private final ResponseStatus status;
+	private final MessageStatus status;
 
 	public byte[] serialize() {
 		return MessageBuilder.of(MessageType.PLAYER_CONNECTED)
