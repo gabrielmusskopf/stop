@@ -28,12 +28,15 @@ public class WordReceivedMessage {
 	private void parseData(byte[] data) {
 		category = Category.singleFrom(data[0]);
 		int wordSize = data[1];
-		word = new String(readN(data, 2, wordSize));
+		word = new String(readN(data, wordSize, 2));
 	}
 
+	// 0 0 0 0
+	// 4 -
+	//
 	private byte[] readN(byte[] data, int n, int starting) {
-		byte[] buff = new byte[n - starting];
-		for (int i = 0; i < n; i++) {
+		byte[] buff = new byte[n];
+		for (int i = 0; i < buff.length; i++) {
 			buff[i] = data[starting + i];
 		}
 		return buff;

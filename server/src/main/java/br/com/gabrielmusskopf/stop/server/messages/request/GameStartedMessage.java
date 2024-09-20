@@ -24,10 +24,8 @@ public class GameStartedMessage implements Message {
 
 	@Override
 	public byte[] serialize() {
-		int c = categories.stream().map(Category::getCode).reduce(0, Integer::sum);
-
 		return MessageBuilder.of(MessageType.GAME_STARTED)
-				.put(c)
+				.put(Category.fromCategories(categories))
 				.build();
 	}
 }

@@ -1,100 +1,61 @@
 package br.com.gabrielmusskopf.stop.client;
 
 import java.io.BufferedInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 import lombok.extern.slf4j.Slf4j;
 
-import br.com.gabrielmusskopf.stop.MessageStatus;
-import br.com.gabrielmusskopf.stop.MessageType;
-import br.com.gabrielmusskopf.stop.RawMessage;
-import br.com.gabrielmusskopf.stop.client.exception.ConnectionClosedException;
-import br.com.gabrielmusskopf.stop.client.exception.UnexpectedMessageException;
-import br.com.gabrielmusskopf.stop.client.message.GameStartedMessage;
-import br.com.gabrielmusskopf.stop.client.message.PlayerConnectedMessage;
-import br.com.gabrielmusskopf.stop.client.message.RoundStartedMessage;
+import br.com.gabrielmusskopf.stop.Message;
+import br.com.gabrielmusskopf.stop.Readable;
 
 @Slf4j
-public class Client {
+public class Client implements AutoCloseable, Readable {
 
 	private final Socket socket;
 	private final BufferedInputStream in;
-	private final PrintWriter out;
-	private boolean isConnected;
+	private final DataOutputStream out;
 
 	public Client(Socket socket) throws IOException {
 		this.socket = socket;
 		this.in = new BufferedInputStream(socket.getInputStream());
-		this.out = new PrintWriter(socket.getOutputStream(), true);
+		this.out = new DataOutputStream(socket.getOutputStream());
 	}
 
-	public void start() throws IOException {
-		log.info("Connected to Stop server");
-
-		waitServerConfirmation();
-		log.info("Client is connected to a game");
-
-		// here the player is already connected to a game
-		while (isConnected) {
-			// client state machine
-			var msg = readRawMessage();
-			switch (msg.getType()) {
-				case WAITING_PLAYERS -> log.info("Waiting another player to join");
-				case GAME_STARTED -> {
-					var gsm = new GameStartedMessage(msg.getData());
-					log.info("Game has started. The categories are {}", gsm.getCategories());
-				}
-				case GAME_ENDED -> log.info("Game has ended. Thanks for playing :)");
-				case ROUND_STARTED -> {
-					var m = new RoundStartedMessage(msg.getData());
-					log.info("A new round started! Letter is '{}'", m.getLetter());
-				}
-				case CONNECTION_CLOSED -> {
-					log.info("Client was disconnected by the server");
-					isConnected = false;
-				}
-				default -> throw new UnexpectedMessageException();
-			}
-		}
-
-		socket.close();
-		log.info("The joy is over, see you space cowboy");
+	public int read() throws IOException {
+		return in.read();
 	}
 
-	// wait for the server to confirm if the client was able to join a game
-	private void waitServerConfirmation() {
+	public byte[] read(int size) throws IOException {
+		var buff = new byte[size];
+		in.read(buff, 0, size);
+		return buff;
+	}
+
+	public void send(Message message) throws IOException {
 		try {
-			var msg = readRawMessage();
-
-			if (MessageType.CONNECTION_CLOSED.equals(msg.getType())) {
-				throw new ConnectionClosedException("Unexpected connection closure");
-			}
-			if (!MessageType.PLAYER_CONNECTED.equals(msg.getType())) {
-				throw new UnexpectedMessageException("Client was expecting {}, but got {} message type", MessageType.PLAYER_CONNECTED, msg.getType());
-			}
-
-			var message = new PlayerConnectedMessage(msg.getData());
-			if (!MessageStatus.OK.equals(message.getStatus())) {
-				throw new UnexpectedMessageException("Connection request was not successful");
-			}
-
-			isConnected = true;
-
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			isConnected = false;
+			out.write(message.serialize());
+			out.flush();
+		} catch (IOException e) {
+			log.error("Could not write message to client {}. Closing connection.", getHost());
+			disconnect();
 		}
 	}
 
-	private RawMessage readRawMessage() throws IOException {
-		var size = in.read();
-		var typeCode = in.read();
-		var data = new byte[size - 2]; // without size and type
-		in.read(data, 0, size - 2);
+	public String getHost() {
+		return socket.getInetAddress().getHostAddress();
+	}
 
-		return new RawMessage(size, typeCode, data);
+	public void disconnect() throws IOException {
+		socket.close();
+		in.close();
+		out.close();
+	}
+
+	@Override
+	public void close() throws IOException {
+		disconnect();
 	}
 
 }

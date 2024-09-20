@@ -33,7 +33,7 @@ public class Game implements Runnable {
 	private final String identifier;
 	private Player player1;
 	private Player player2;
-	private int currentRound = -1;
+	private int currentRound = 0;
 	private GameState gameState;
 
 	public Game() {
@@ -89,6 +89,7 @@ public class Game implements Runnable {
 			log.info("A round {} started", currentRound);
 
 			broadcast(MessageFactory.roundStarted(round.getLetter()));
+			round.start();
 
 
 			log.info("A round {} ended", currentRound);
@@ -167,6 +168,6 @@ public class Game implements Runnable {
 	}
 
 	private Round getCurrentRound() {
-		return rounds.get(currentRound);
+		return rounds.get(currentRound - 1);
 	}
 }

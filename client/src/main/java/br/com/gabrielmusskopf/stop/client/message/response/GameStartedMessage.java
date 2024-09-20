@@ -1,4 +1,4 @@
-package br.com.gabrielmusskopf.stop.client.message;
+package br.com.gabrielmusskopf.stop.client.message.response;
 
 import java.util.ArrayList;
 import java.util.List;

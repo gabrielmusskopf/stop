@@ -9,11 +9,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import br.com.gabrielmusskopf.stop.Message;
+import br.com.gabrielmusskopf.stop.Readable;
 import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 
 @Slf4j
 @RequiredArgsConstructor
-public class Player {
+public class Player implements Readable {
 
 	private final String name = "player";
 	private final Socket socket;

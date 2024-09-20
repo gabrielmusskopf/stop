@@ -35,4 +35,17 @@ public enum Category {
 		}
 		return categories;
 	}
+
+	public static int fromCategories(Category category) {
+		return fromCategories(List.of(category));
+	}
+
+	public static int fromCategories(Iterable<Category> categories) {
+		int value = 0;
+		for (Category category : categories) {
+			value += category.getCode();
+		}
+		return value;
+	}
+
 }

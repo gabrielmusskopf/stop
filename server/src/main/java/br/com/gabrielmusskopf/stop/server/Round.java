@@ -8,6 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,8 @@ public class Round {
 	private static final int THREADS_NUMBER = 2;
 	private static final int ROUND_TIMEOUT_SECONDS = 10;
 
+	private final String id = "round-" + RandomStringUtils.secure().nextAlphabetic(5);
+
 	private final char letter;
 	private final List<Category> categories;
 	private final Player player1;
@@ -37,26 +41,23 @@ public class Round {
 		final Object lock = new Object();
 		final boolean[] finished = { false };
 		startTime = LocalDateTime.now();
+		log.debug("Starting round at {}", startTime);
 
 		for (int i = 0; i < THREADS_NUMBER; i++) {
-			int threadId = i + 1;
 			final var player = getPlayer(i);
-			Future<?> future = executor.submit(() -> {
+			final var future = executor.submit(() -> {
 				try {
-
+					log.debug("Starting {} thread and waiting for client {} messages", id, player.getHost());
 					while (roundIsValid()) {
-						final var msg = readRawMessage(player);
+						final var msg = RawMessage.readRawMessage(player);
 						switch (msg.getType()) {
-							case WORD_RECEIVED -> validateWord(msg);
+							case CATEGORY_WORD -> validateWord(msg);
 							default -> log.error("Unexpected client message received");
 						}
 					}
-
-					// acabou
-
 					synchronized (lock) {
 						if (!finished[0]) {
-							System.out.println("Thread " + threadId + " terminou primeiro! Finalizando as outras...");
+							log.debug("Round {} thread finished. Finalizing the others because the round is over", id);
 							finished[0] = true;
 
 							for (Future<?> f : futures) {
@@ -72,35 +73,27 @@ public class Round {
 			futures.add(future);
 		}
 
+		log.info("Round '{}' started. This thread will wait until round timeout or some player ends", id);
 		executor.shutdown();
 		if (!executor.awaitTermination(ROUND_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-			System.out.println("Timeout! Finalizando todas as threads.");
+			log.debug("Round '{}' is over by timeout. Finalizing all players threads", id);
 			executor.shutdownNow();
 		}
 
-		System.out.println("Todas as threads foram finalizadas.");
+		log.debug("All players threads are over for {}", id);
 	}
 
 	private void validateWord(RawMessage msg) {
 		var m = new WordReceivedMessage(msg.getData());
-		log.info("Palavra recebida com sucesso: {} para a categoria {}", m.getWord(), m.getCategory());
+		log.debug("Word '{}' received for '{}' category", m.getWord(), m.getCategory());
 	}
 
 	private boolean roundIsValid() {
-		return startTime.plusSeconds(ROUND_TIMEOUT_SECONDS).isBefore(LocalDateTime.now()); // and STOP requests
+		return LocalDateTime.now().isBefore(startTime.plusSeconds(ROUND_TIMEOUT_SECONDS));
 	}
 
 	private Player getPlayer(int i) {
 		return i % 2 == 0 ? player1 : player2;
 	}
-
-	private RawMessage readRawMessage(Player player) throws IOException {
-		var size = player.read();
-		var typeCode = player.read();
-		var data = player.read(size - 2);
-
-		return new RawMessage(size, typeCode, data);
-	}
-
 
 }
