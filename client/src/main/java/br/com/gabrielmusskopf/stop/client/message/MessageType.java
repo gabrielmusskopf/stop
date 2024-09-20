@@ -1,4 +1,4 @@
-package br.com.gabrielmusskopf.stop.client;
+package br.com.gabrielmusskopf.stop.client.message;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

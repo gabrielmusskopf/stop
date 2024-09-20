@@ -9,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import br.com.gabrielmusskopf.stop.client.exception.ConnectionClosedException;
 import br.com.gabrielmusskopf.stop.client.exception.UnexpectedMessageException;
+import br.com.gabrielmusskopf.stop.client.message.GameStartedMessage;
+import br.com.gabrielmusskopf.stop.client.message.MessageType;
+import br.com.gabrielmusskopf.stop.client.message.PlayerConnectedMessage;
+import br.com.gabrielmusskopf.stop.client.message.RequestStatus;
 
 @Slf4j
 public class Client {
@@ -36,7 +40,11 @@ public class Client {
 			var msg = readRawMessage();
 			switch (msg.getType()) {
 				case WAITING_PLAYERS -> log.info("Waiting another player to join");
-				case GAME_STARTED -> log.info("Game has started");
+				case GAME_STARTED -> {
+					log.info("Game has started");
+					var gsm = new GameStartedMessage(msg.getData());
+					System.out.println(gsm.getCategories());
+				}
 				case GAME_ENDED -> log.info("Game has ended. Thanks for playing :)");
 				case CONNECTION_CLOSED -> {
 					log.info("Client was disconnected by the server");

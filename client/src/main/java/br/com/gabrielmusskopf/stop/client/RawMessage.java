@@ -3,6 +3,8 @@ package br.com.gabrielmusskopf.stop.client;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import br.com.gabrielmusskopf.stop.client.message.MessageType;
+
 @Getter
 @RequiredArgsConstructor
 public class RawMessage {
