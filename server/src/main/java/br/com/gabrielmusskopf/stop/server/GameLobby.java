@@ -20,6 +20,7 @@ public class GameLobby {
 			return;
 		}
 
+		// TODO: [bug] when one player connect and disconnect before the other, this game must be deleted (or something else)
 		game.playerJoin(player);
 		player.send(MessageFactory.playerConnectedSuccessfully());
 

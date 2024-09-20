@@ -17,7 +17,7 @@ import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 @Getter
 public class Game implements Runnable {
 
-	private static final int DEFAULT_ROUNDS = 2;
+	private static final int DEFAULT_ROUNDS = 1;
 
 	// jogador1 - categoria1 - palavra
 	// jogador1 - categoria2 - palavra	private final Player player1;
@@ -60,30 +60,11 @@ public class Game implements Runnable {
 	@Override
 	public void run() {
 		try {
-			/*
-			boolean areEnoughPlayers = hasEnoughPlayers();
-			if (!areEnoughPlayers) {
-				log.info("A new game '{}' is waiting", identifier);
-				broadcast(MessageFactory.waitingPlayer());
-			}
-
-			//TODO: remove cpu bounded wait
-			while (!hasEnoughPlayers()) {
-				// wait
-				if (!hasSomeConnectedPlayer()) {
-					log.info("The game '{}' does not have players connected any more", identifier);
-					disconnectAll();
-					return;
-				}
-			}
-			 */
-
 			log.info("The game '{}' is starting. Ongoing games: {}", identifier, GamePool.ongoingGamesCount());
 			gameState = GameState.RUNNING;
 			broadcast(MessageFactory.gameStarted());
 
-			// game logic
-			Thread.sleep(10 * 1000);
+			gameLoop();
 
 			gameState = GameState.FINISHED;
 			GamePool.endGame();
@@ -94,6 +75,17 @@ public class Game implements Runnable {
 		} catch (InterruptedException | IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private void gameLoop() throws InterruptedException, IOException {
+		Thread.sleep(5 * 1000);
+		while (hasRounds()) {
+			var round = nextRound();
+			log.info("A round {} started", currentRound);
+			broadcast(MessageFactory.roundStarted(round.getLetter()));
+			log.info("A round {} ended", currentRound);
+		}
+		Thread.sleep(5 * 1000);
 	}
 
 	private void broadcast(Message message) throws IOException {
@@ -154,9 +146,11 @@ public class Game implements Runnable {
 		return rounds.size() < roundsCount;
 	}
 
-	public void nextRound() {
+	public Round nextRound() {
 		currentRound++;
-		this.rounds.add(new Round(generateRoundLetter()));
+		var round = new Round(generateRoundLetter());
+		this.rounds.add(round);
+		return round;
 	}
 
 	public int getCurrentRoundCount() {

@@ -13,6 +13,7 @@ import br.com.gabrielmusskopf.stop.client.message.GameStartedMessage;
 import br.com.gabrielmusskopf.stop.client.message.MessageType;
 import br.com.gabrielmusskopf.stop.client.message.PlayerConnectedMessage;
 import br.com.gabrielmusskopf.stop.client.message.RequestStatus;
+import br.com.gabrielmusskopf.stop.client.message.RoundStartedMessage;
 
 @Slf4j
 public class Client {
@@ -41,11 +42,14 @@ public class Client {
 			switch (msg.getType()) {
 				case WAITING_PLAYERS -> log.info("Waiting another player to join");
 				case GAME_STARTED -> {
-					log.info("Game has started");
 					var gsm = new GameStartedMessage(msg.getData());
-					System.out.println(gsm.getCategories());
+					log.info("Game has started. The categories are {}", gsm.getCategories());
 				}
 				case GAME_ENDED -> log.info("Game has ended. Thanks for playing :)");
+				case ROUND_STARTED -> {
+					var m = new RoundStartedMessage(msg.getData());
+					log.info("A new round started! Letter is '{}'", m.getLetter());
+				}
 				case CONNECTION_CLOSED -> {
 					log.info("Client was disconnected by the server");
 					isConnected = false;

@@ -15,6 +15,7 @@ Header:
 - type (4 bytes)
 Body:
 - categories (4 bytes) [logic addition to insert up to 8 categories, like 00111111]
+- letter (1 byte)
  */
 @RequiredArgsConstructor
 public class GameStartedMessage implements Message {

@@ -34,6 +34,10 @@ public abstract class MessageBuilder implements Message {
 			return put((byte) i);
 		}
 
+		public Builder put(char c) {
+			return put((byte) c);
+		}
+
 		public Builder put(byte b) {
 			data.write(b);
 			return this;

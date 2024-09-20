@@ -10,7 +10,8 @@ public enum MessageType {
 	WAITING_PLAYERS(2),
 	GAME_STARTED(3),
 	GAME_ENDED(4),
-	CONNECTION_CLOSED(5);
+	CONNECTION_CLOSED(5),
+	ROUND_STARTED(6);
 
 	private final int code;
 
