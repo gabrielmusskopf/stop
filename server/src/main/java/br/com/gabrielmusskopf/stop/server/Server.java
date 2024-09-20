@@ -17,6 +17,7 @@ public class Server {
 		try (var server = new ServerSocket(PORT)) {
 			log.info("Server is running on " + PORT);
 			while (true) {
+				// TODO: wait for some message with user details, like name
 				final var playerSocket = server.accept();
 				log.info("New client connected: {}", playerSocket.getInetAddress().getHostAddress());
 				gameLobby.addClient(new Player(playerSocket));

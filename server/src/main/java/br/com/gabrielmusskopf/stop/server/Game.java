@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import br.com.gabrielmusskopf.stop.server.exception.IllegalGameException;
+import br.com.gabrielmusskopf.stop.server.messages.Message;
+import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 
 @Slf4j
 @Getter
@@ -58,26 +60,34 @@ public class Game implements Runnable {
 	@Override
 	public void run() {
 		try {
+			/*
 			boolean areEnoughPlayers = hasEnoughPlayers();
 			if (!areEnoughPlayers) {
 				log.info("A new game '{}' is waiting", identifier);
-				broadcast("Not enough players to start the game, please wait");
+				broadcast(MessageFactory.waitingPlayer());
 			}
 
+			//TODO: remove cpu bounded wait
 			while (!hasEnoughPlayers()) {
 				// wait
+				if (!hasSomeConnectedPlayer()) {
+					log.info("The game '{}' does not have players connected any more", identifier);
+					disconnectAll();
+					return;
+				}
 			}
+			 */
 
 			log.info("The game '{}' is starting. Ongoing games: {}", identifier, GamePool.ongoingGamesCount());
 			gameState = GameState.RUNNING;
-			broadcast("Both players joined. Game will start now!");
+			broadcast(MessageFactory.gameStarted());
 
 			// game logic
 			Thread.sleep(10 * 1000);
 
 			gameState = GameState.FINISHED;
 			GamePool.endGame();
-			broadcast("Game is finished. Thanks for playing :)");
+			broadcast(MessageFactory.gameEnded());
 			disconnectAll();
 			log.info("The game '{}' finished. Ongoing games: {}", identifier, GamePool.ongoingGamesCount());
 
@@ -86,13 +96,19 @@ public class Game implements Runnable {
 		}
 	}
 
-	private void broadcast(String message) {
+	private void broadcast(Message message) throws IOException {
 		if (player1 != null) player1.send(message);
 		if (player2 != null) player2.send(message);
 	}
 
 	public boolean hasEnoughPlayers() {
 		return player1 != null && player2 != null;
+	}
+
+	public boolean hasSomeConnectedPlayer() {
+		if (player1 != null) return player1.isConnected();
+		if (player2 != null) return player2.isConnected();
+		return false;
 	}
 
 	private void disconnectAll() throws IOException {
