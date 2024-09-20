@@ -11,7 +11,7 @@ public class StopClient {
 	private static final int SERVER_PORT = 12345;
 
 	public static void main(String[] args) {
-		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var client = new Client(socket)) {
+		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var client = new Player(socket)) {
 			var game = new Game(client);
 			game.start();
 			log.info("The joy is over, see you space cowboy");

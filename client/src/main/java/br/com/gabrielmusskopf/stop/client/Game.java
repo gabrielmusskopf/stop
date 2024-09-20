@@ -20,7 +20,7 @@ import br.com.gabrielmusskopf.stop.client.message.response.RoundStartedMessage;
 @RequiredArgsConstructor
 public class Game {
 
-	private final Client client;
+	private final Player player;
 	private List<Category> categories;
 
 	public void start() throws IOException {
@@ -32,7 +32,7 @@ public class Game {
 		// here the player is already connected to a game
 		while (true) {
 			// game state machine
-			var msg = RawMessage.readRawMessage(client);
+			var msg = RawMessage.readRawMessage(player);
 			switch (msg.getType()) {
 				case WAITING_PLAYERS -> {
 					log.info("Waiting another player to join");
@@ -48,7 +48,7 @@ public class Game {
 						return;
 					}
 					var m = new RoundStartedMessage(msg.getData());
-					var round = new Round(m.getLetter(), client, categories);
+					var round = new Round(m.getLetter(), player, categories);
 					round.start();
 				}
 				case GAME_ENDED -> {
@@ -66,7 +66,7 @@ public class Game {
 
 	// wait for the server to confirm if the client was able to join a game
 	private void waitServerConfirmation() throws IOException {
-		var msg = RawMessage.readRawMessage(client);
+		var msg = RawMessage.readRawMessage(player);
 
 		if (MessageType.CONNECTION_CLOSED.equals(msg.getType())) {
 			throw new ConnectionClosedException("Unexpected connection closure");

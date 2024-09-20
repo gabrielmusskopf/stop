@@ -19,12 +19,12 @@ import br.com.gabrielmusskopf.stop.Category;
 public class Round {
 
 	private final char letter;
-	private final Client client;
+	private final Player player;
 	private final Map<Integer, Category> categories;
 
-	public Round(char letter, Client client, List<Category> categories) {
+	public Round(char letter, Player player, List<Category> categories) {
 		this.letter = letter;
-		this.client = client;
+		this.player = player;
 		this.categories = IntStream
 				.range(0, categories.size())
 				.boxed()
@@ -57,7 +57,7 @@ public class Round {
 			var word = scanner.nextLine();
 
 			var message = MessageFactory.sendWord(category, word);
-			client.send(message);
+			player.send(message);
 
 			// TODO: stop request
 		}

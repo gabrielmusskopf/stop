@@ -11,13 +11,13 @@ import br.com.gabrielmusskopf.stop.Message;
 import br.com.gabrielmusskopf.stop.Readable;
 
 @Slf4j
-public class Client implements AutoCloseable, Readable {
+public class Player implements AutoCloseable, Readable {
 
 	private final Socket socket;
 	private final BufferedInputStream in;
 	private final DataOutputStream out;
 
-	public Client(Socket socket) throws IOException {
+	public Player(Socket socket) throws IOException {
 		this.socket = socket;
 		this.in = new BufferedInputStream(socket.getInputStream());
 		this.out = new DataOutputStream(socket.getOutputStream());
