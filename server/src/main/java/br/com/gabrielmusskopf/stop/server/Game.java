@@ -25,7 +25,8 @@ public class Game implements Runnable {
 	// private final Map<Player, Map<String, String>> categoryAnswers;
 
 	private final List<Category> categories = List.of( // static for now
-			Category.NAME, Category.ANIMAL, Category.COLOR, Category.WORD, Category.LOCATION, Category.OBJECT
+			Category.NAME
+			//Category.ANIMAL, Category.COLOR, Category.WORD, Category.LOCATION, Category.OBJECT
 	);
 
 	private final int roundsCount;

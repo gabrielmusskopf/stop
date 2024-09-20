@@ -13,7 +13,8 @@ public enum MessageType {
 	CONNECTION_CLOSED(5),
 	ROUND_STARTED(6),
 	ROUND_FINISHED(7),
-	CATEGORY_WORD(8);
+	CATEGORY_WORD(8),
+	STOP(9);
 
 	private final int code;
 
