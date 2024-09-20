@@ -23,7 +23,7 @@ import br.com.gabrielmusskopf.stop.server.messages.response.WordReceivedMessage;
 @RequiredArgsConstructor
 public class Round {
 
-	private static final int THREADS_NUMBER = 2;
+	private static final int ROUND_PLAYERS_COUNT = 2;
 	private static final int ROUND_TIMEOUT_SECONDS = 10;
 
 	private final String id = "round-" + RandomStringUtils.secure().nextAlphabetic(5);
@@ -34,42 +34,22 @@ public class Round {
 	private final Player player2;
 	private LocalDateTime startTime;
 
-	public void start() throws InterruptedException {
-		var executor = Executors.newFixedThreadPool(THREADS_NUMBER);
-		List<Future<?>> futures = new ArrayList<>();
+	private final Object lock = new Object();
+	private final List<Future<?>> futures = new ArrayList<>();
+	private boolean finished = false ;
 
-		final Object lock = new Object();
-		final boolean[] finished = { false };
+	// starts two threads to receive both answers at the same time
+	public void start() throws InterruptedException {
+		var executor = Executors.newFixedThreadPool(ROUND_PLAYERS_COUNT);
+
 		startTime = LocalDateTime.now();
 		log.debug("Starting round at {}", startTime);
 
-		for (int i = 0; i < THREADS_NUMBER; i++) {
+		for (int i = 0; i < ROUND_PLAYERS_COUNT; i++) {
 			final var player = getPlayer(i);
 			final var future = executor.submit(() -> {
-				try {
-					log.debug("Starting {} thread and waiting for client {} messages", id, player.getHost());
-					while (roundIsValid()) {
-						final var msg = RawMessage.readRawMessage(player);
-						switch (msg.getType()) {
-							case CATEGORY_WORD -> validateWord(msg);
-							default -> log.error("Unexpected client message received");
-						}
-					}
-					synchronized (lock) {
-						if (!finished[0]) {
-							log.debug("Round {} thread finished. Finalizing the others because the round is over", id);
-							finished[0] = true;
-
-							for (Future<?> f : futures) {
-								f.cancel(true);
-							}
-						}
-					}
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
+				playerListenerTask(player);
 			});
-
 			futures.add(future);
 		}
 
@@ -83,9 +63,41 @@ public class Round {
 		log.debug("All players threads are over for {}", id);
 	}
 
+	private void playerListenerTask(Player player) {
+		try {
+			log.debug("Starting {} thread and waiting for client {} messages", id, player.getHost());
+			roundLoop(player);
+			interruptOtherPlayers();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void roundLoop(Player player) throws IOException {
+		while (roundIsValid()) {
+			final var msg = RawMessage.readRawMessage(player);
+			switch (msg.getType()) {
+				case CATEGORY_WORD -> validateWord(msg);
+				// TODO: stop request
+				default -> log.error("Unexpected client message received");
+			}
+		}
+	}
+
+	private void interruptOtherPlayers() {
+		synchronized (lock) {
+			if (!finished) {
+				log.debug("Round {} thread finished. Finalizing the others because the round is over", id);
+				finished = true;
+				futures.forEach(f -> f.cancel(true));
+			}
+		}
+	}
+
 	private void validateWord(RawMessage msg) {
 		var m = new WordReceivedMessage(msg.getData());
 		log.debug("Word '{}' received for '{}' category", m.getWord(), m.getCategory());
+		// TODO: validate word
 	}
 
 	private boolean roundIsValid() {
