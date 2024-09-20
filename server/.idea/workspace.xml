@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6ea18db7-396a-447d-9d6d-efb7f2526a67" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../client/client/src/main/java/br/com/gabrielmusskopf/stop/client/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/client/src/main/java/br/com/gabrielmusskopf/stop/client/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/client/src/main/java/br/com/gabrielmusskopf/stop/client/Round.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/client/src/main/java/br/com/gabrielmusskopf/stop/client/Round.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/client/src/main/java/br/com/gabrielmusskopf/stop/client/exception/UnexpectedMessageException.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/client/src/main/java/br/com/gabrielmusskopf/stop/client/exception/UnexpectedMessageException.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="repository" />
+    </option>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../client" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="OptimizeOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2mDa0FOLcb6gEroBaayLjYoumMN" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Application.StopClient.executor": "Debug",
+    "Application.StopServer.executor": "Debug",
+    "Maven.client [clean,install].executor": "Run",
+    "Maven.common [clean,install].executor": "Run",
+    "Maven.stop [clean,install].executor": "Run",
+    "Maven.stop [dependency:tree].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "<unknown>",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/gabrielmusskopf/dev/facul/redes-01/stop/stop-common",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "rearrange.code.on.save": "true",
+    "settings.editor.selected.configurable": "actions.on.save"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="br.com.gabrielmusskopf.stop.server" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../client/src/main/resources" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="br.com.gabrielmusskopf.stop.server.messages" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="br.com.gabrielmusskopf.stop.client.message" />
+      <recent name="br.com.gabrielmusskopf.stop.server.messages.response" />
+      <recent name="br.com.gabrielmusskopf.stop.server" />
+      <recent name="br.com.gabrielmusskopf.stop.server.messages.request" />
+      <recent name="br.com.gabrielmusskopf.stop.server.messages" />
+    </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn clean install" />
+      <command value="mvn dependency:tree" />
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.StopClient">
+    <configuration name="StopClient" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="br.com.gabrielmusskopf.stop.client.StopClient" />
+      <module name="client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="br.com.gabrielmusskopf.stop.server.exception.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="StopServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="br.com.gabrielmusskopf.stop.server.StopServer" />
+      <module name="stop" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="br.com.gabrielmusskopf.stop.server.exception.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.StopClient" />
+        <item itemvalue="Application.StopServer" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6ea18db7-396a-447d-9d6d-efb7f2526a67" name="Changes" comment="" />
+      <created>1726613380685</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1726613380685</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/com/gabrielmusskopf/stop/Server.java</url>
+          <line>21</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/com/gabrielmusskopf/stop/ClientThread.java</url>
+          <line>20</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/com/gabrielmusskopf/stop/server/Round.java</url>
+          <line>52</line>
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/br/com/gabrielmusskopf/stop/server/messages/response/WordReceivedMessage.java</url>
+          <line>34</line>
+          <option name="timeStamp" value="36" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
