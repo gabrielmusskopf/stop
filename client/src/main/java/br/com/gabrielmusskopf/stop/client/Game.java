@@ -32,8 +32,11 @@ public class Game {
 		// here the player is already connected to a game
 		while (true) {
 			// game state machine
-			var msg = RawMessage.readRawMessage(player);
+			var msg = RawMessage.readRawMessageOrUnknown(player);
 			switch (msg.getType()) {
+				case UNKNOWN -> {
+					// read timed out
+				}
 				case WAITING_PLAYERS -> {
 					log.info("Waiting another player to join");
 				}

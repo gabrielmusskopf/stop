@@ -19,6 +19,7 @@ public class Player implements AutoCloseable, Readable {
 
 	public Player(Socket socket) throws IOException {
 		this.socket = socket;
+		this.socket.setSoTimeout(3000);
 		this.in = new BufferedInputStream(socket.getInputStream());
 		this.out = new DataOutputStream(socket.getOutputStream());
 	}

@@ -33,6 +33,20 @@ public class RawMessage {
 	}
 
 	/**
+	 * Read from {@link Readable} until timeout. The message read must have the expected format
+	 * @param in a readable
+	 * @return message read or message of type UNKNOWN if nothing was read whiting timeout
+	 * @throws IOException from {@link Readable}
+	 */
+	public static RawMessage readRawMessageOrUnknown(Readable in) throws IOException {
+		try {
+			return readRawMessage(in);
+		} catch (SocketTimeoutException e) {
+			return RawMessage.unknown();
+		}
+	}
+
+	/**
 	 * Read from {@link Readable}. The message read must have the expected format
 	 * @param in a readable
 	 * @return message read
@@ -44,24 +58,6 @@ public class RawMessage {
 		var data = in.read(size - 2);
 
 		return new RawMessage(size, typeCode, data);
-	}
-
-	/**
-	 * Read from {@link Readable} until timeout. The message read must have the expected format
-	 * @param in a readable
-	 * @return message read or message of type UNKNOWN if nothing was read whiting timeout
-	 * @throws IOException from {@link Readable}
-	 */
-	public static RawMessage readRawMessageOrUnknown(Readable in) throws IOException {
-		try {
-			var size = in.read();
-			var typeCode = in.read();
-			var data = in.read(size - 2);
-
-			return new RawMessage(size, typeCode, data);
-		} catch (SocketTimeoutException e) {
-			return RawMessage.unknown();
-		}
 	}
 
 	private static RawMessage unknown() {

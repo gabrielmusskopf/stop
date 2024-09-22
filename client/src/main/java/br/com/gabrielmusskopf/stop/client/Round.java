@@ -53,8 +53,11 @@ public class Round {
 		executor.submit(this::userInteractionTask);
 
 		while (true) {
-			var msg = RawMessage.readRawMessage(player);
+			var msg = RawMessage.readRawMessageOrUnknown(player);
 			switch (msg.getType()) {
+				case UNKNOWN -> {
+					// read timed out
+				}
 				case ROUND_FINISHED -> {
 					log.info("Round finished");
 					executor.shutdownNow();
