@@ -23,6 +23,7 @@ public class Player implements AutoCloseable, Readable {
 
 	public Player(Socket socket) throws IOException {
 		this.socket = socket;
+		this.socket.setSoTimeout(1000);
 		this.in = new BufferedInputStream(this.socket.getInputStream());
 		this.out = new DataOutputStream(this.socket.getOutputStream());
 	}
@@ -38,7 +39,7 @@ public class Player implements AutoCloseable, Readable {
 	}
 
 	public int read() throws IOException {
-		return in.read();
+			return in.read();
 	}
 
 	public byte[] read(int size) throws IOException {

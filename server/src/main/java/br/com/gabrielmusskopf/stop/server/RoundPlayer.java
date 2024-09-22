@@ -1,16 +1,23 @@
 package br.com.gabrielmusskopf.stop.server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import br.com.gabrielmusskopf.stop.Category;
+import br.com.gabrielmusskopf.stop.MessageType;
 import br.com.gabrielmusskopf.stop.RawMessage;
 import br.com.gabrielmusskopf.stop.server.messages.response.WordReceivedMessage;
 
@@ -24,7 +31,7 @@ public class RoundPlayer {
 	private final Map<Category, String> answers;
 	private boolean stop = false;
 
-	public RoundPlayer(List<Category> categories, Player player) {
+	public RoundPlayer(List<Category> categories, Player player) throws IOException {
 		this.categories = categories;
 		this.player = player;
 		this.answers = new HashMap<>();
@@ -32,7 +39,14 @@ public class RoundPlayer {
 
 	public void loop() throws IOException {
 		while (!stop) {
-			final var msg = RawMessage.readRawMessage(player);
+			if (Thread.currentThread().isInterrupted()) {
+				log.debug("Thread is interrupted");
+				return;
+			}
+			final var msg = RawMessage.readRawMessageOrUnknown(player);
+			if (MessageType.UNKNOWN.equals(msg.getType())) {
+				continue;
+			}
 			switch (msg.getType()) {
 				case CATEGORY_WORD -> receiveWord(msg);
 				case STOP -> stop();

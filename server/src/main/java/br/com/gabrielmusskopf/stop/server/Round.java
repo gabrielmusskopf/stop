@@ -50,15 +50,12 @@ public class Round {
 
 		for (int i = 0; i < ROUND_PLAYERS_COUNT; i++) {
 			final var player = getPlayer(i);
-			final var future = executor.submit(() -> {
-				playerListenerTask(player);
-			});
+			final var future = executor.submit(() -> playerListenerTask(player));
 			futures.add(future);
 		}
 
 		log.info("Round '{}' started. This thread will wait until round timeout or some player ends", id);
 		executor.shutdown();
-		// FIXME: even with a stop request, executor still waits for the timeout
 		if (!executor.awaitTermination(ROUND_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
 			log.debug("Round '{}' is over by timeout. Finalizing all players threads", id);
 			executor.shutdownNow();
@@ -70,8 +67,12 @@ public class Round {
 	private void playerListenerTask(Player player) {
 		try {
 			log.debug("Starting {} thread and waiting for client {} messages", id, player.getHost());
-			new RoundPlayer(categories, player).loop(); // blocking
+
+			new RoundPlayer(categories, player).loop();
+
+			log.debug("Round {} thread finished", id);
 			interruptOtherPlayers();
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -79,7 +80,7 @@ public class Round {
 
 	private void interruptOtherPlayers() {
 		if (!finished) {
-			log.debug("Round {} thread finished. Finalizing the others because the round is over", id);
+			log.debug("Finalizing the others because the round is over");
 			finished = true;
 			futures.forEach(f -> f.cancel(true));
 		}

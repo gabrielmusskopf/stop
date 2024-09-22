@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MessageType {
+	UNKNOWN(0),
 	PLAYER_CONNECTED(1),
 	WAITING_PLAYERS(2),
 	GAME_STARTED(3),
