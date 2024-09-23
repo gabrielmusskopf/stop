@@ -5,25 +5,17 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 import br.com.gabrielmusskopf.stop.Category;
+import br.com.gabrielmusskopf.stop.Score;
 
 @RequiredArgsConstructor
 public class PlayerPoints {
 
-	private static final int STOP_REQUEST_POINTS = 10;
-
-	private final Map<Category, Integer> answersPoints;
-	private final boolean requestStop;
+	private final Map<Category, Score> answersPoints;
 
 	public int getPoints() {
-		int points = answersPoints.values().stream().reduce(0, Integer::sum);
-		if (requestStop) {
-			points += STOP_REQUEST_POINTS;
-		}
-		return points;
-	}
-
-	public Integer get(Category category) {
-		return answersPoints.get(category);
+		return answersPoints.values().stream()
+				.map(Score::getPoints)
+				.reduce(0, Integer::sum);
 	}
 
 }

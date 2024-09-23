@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -16,6 +17,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import br.com.gabrielmusskopf.stop.Category;
+import br.com.gabrielmusskopf.stop.Score;
 
 @Slf4j
 public class Round {
@@ -25,18 +27,22 @@ public class Round {
 
 	private final String id = "round-" + RandomStringUtils.secure().nextAlphabetic(5);
 
-	@Getter private final char letter;
-	@Getter private final int number;
-	@Getter private final List<Category> categories;
+	@Getter
+	private final char letter;
+	@Getter
+	private final int number;
+	@Getter
+	private final List<Category> categories;
 	private final Player player1;
 	private final Player player2;
-	@Getter private final Map<Player, PlayerAnswers> playersAnswers = new HashMap<>();
-	@Getter private final Map<Player, PlayerPoints> playersPoints = new HashMap<>();
+	@Getter
+	private final Map<Player, PlayerAnswers> playersAnswers = new HashMap<>();
+	@Getter
+	private final Map<Player, PlayerPoints> playersPoints = new HashMap<>();
 
 	private final List<Future<?>> futures = new ArrayList<>();
 
-	private boolean finished = false ;
-	private Player requestStop;
+	private boolean finished = false;
 
 	public Round(char letter, int number, List<Category> categories, Player player1, Player player2) {
 		this.letter = letter;
@@ -74,10 +80,7 @@ public class Round {
 			log.debug("Starting {} thread and waiting for client {} messages", id, player.getHost());
 
 			var roundPlayer = new RoundPlayer(categories, player);
-			var stop = roundPlayer.loop();
-			if (stop) {
-				requestStop = player;
-			}
+			roundPlayer.loop();
 
 			playersAnswers.put(player, roundPlayer.getAnswers());
 
@@ -121,7 +124,7 @@ public class Round {
 	}
 
 	private PlayerPoints computePlayerPoints(Category category, Player player) {
-		var playerPoints = new HashMap<Category, Integer>();
+		var playerPoints = new HashMap<Category, Score>();
 
 		var otherPlayer = player1.equals(player) ? player2 : player1;
 
@@ -130,25 +133,24 @@ public class Round {
 
 		if (playerAnswer == null || playerAnswer.charAt(0) != letter) {
 			// no answer for category or wrong letter
-			playerPoints.put(category, 0);
+			playerPoints.put(category, Score.ZERO);
 
 		} else if (playerAnswer.equalsIgnoreCase(otherPlayerAnswer)) {
 			// do have a valid answer and the other answer the same
-			playerPoints.put(category, 5);
+			playerPoints.put(category, Score.HALF);
 
 		} else {
 			// valid unique answer
-			playerPoints.put(category, 10);
+			playerPoints.put(category, Score.FULL);
 		}
 
-		var isRequestStopPlayer = requestStop.equals(player);
-		return new PlayerPoints(playerPoints, isRequestStopPlayer);
+		return new PlayerPoints(playerPoints);
 	}
 
 	public Map<Player, Integer> getPlayerPoints() {
-		var points = new HashMap<Player, Integer>();
-		playersPoints.forEach((player, pts) -> points.put(player, pts.getPoints()));
-		return points;
+		return playersPoints.entrySet().stream().collect(Collectors.toMap(
+				Map.Entry::getKey,
+				entry -> entry.getValue().getPoints()));
 	}
 
 }

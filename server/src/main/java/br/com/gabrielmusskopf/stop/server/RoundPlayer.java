@@ -1,16 +1,7 @@
 package br.com.gabrielmusskopf.stop.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +28,11 @@ public class RoundPlayer {
 		this.answers = new PlayerAnswers();
 	}
 
-	public boolean loop() throws IOException {
+	public void loop() throws IOException {
 		while (!stop) {
 			if (Thread.currentThread().isInterrupted()) {
 				log.debug("Thread is interrupted");
-				return false;
+				return;
 			}
 			final var msg = RawMessage.readRawMessageOrUnknown(player);
 			if (MessageType.UNKNOWN.equals(msg.getType())) {
@@ -53,7 +44,6 @@ public class RoundPlayer {
 				default -> log.error("Unexpected client message received");
 			}
 		}
-		return true;
 	}
 
 	private void stop() {
@@ -75,6 +65,5 @@ public class RoundPlayer {
 
 		answers.put(m.getCategory(), m.getWord());
 	}
-
 
 }
