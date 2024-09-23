@@ -41,8 +41,9 @@ public class RoundFinishedMessage implements Message {
 				mb.put(playerCategoryAnswer); // answer
 			});
 
-			round.getPlayerPoints().forEach((player, points) -> {
-				mb.put(points); // points
+			round.getPlayersPoints().forEach((player, points) -> {
+				var playerCategoryPoints = points.get(category);
+				mb.put(playerCategoryPoints); // points
 			});
 		});
 

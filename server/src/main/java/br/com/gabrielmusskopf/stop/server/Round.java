@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -115,42 +115,41 @@ public class Round {
 		}
 
 		categories.forEach(category -> {
-			var p1Points = computePlayerPoints(category, player1);
-			var p2Points = computePlayerPoints(category, player2);
-
-			playersPoints.put(player1, p1Points);
-			playersPoints.put(player2, p2Points);
+			computePlayerPoints(category, player1);
+			computePlayerPoints(category, player2);
 		});
 	}
 
-	private PlayerPoints computePlayerPoints(Category category, Player player) {
-		var playerPoints = new HashMap<Category, Score>();
-
+	private void computePlayerPoints(Category category, Player player) {
 		var otherPlayer = player1.equals(player) ? player2 : player1;
 
-		var playerAnswer = playersAnswers.get(player).get(category);
-		var otherPlayerAnswer = playersAnswers.get(otherPlayer).get(category);
+		var playerAnswer = getAnswer(category, player);
+		var otherPlayerAnswer = getAnswer(category, otherPlayer);
 
+		Score score;
 		if (playerAnswer == null || playerAnswer.charAt(0) != letter) {
 			// no answer for category or wrong letter
-			playerPoints.put(category, Score.ZERO);
-
+			score = Score.ZERO;
 		} else if (playerAnswer.equalsIgnoreCase(otherPlayerAnswer)) {
 			// do have a valid answer and the other answer the same
-			playerPoints.put(category, Score.HALF);
-
+			score = Score.HALF;
 		} else {
 			// valid unique answer
-			playerPoints.put(category, Score.FULL);
+			score = Score.FULL;
 		}
 
-		return new PlayerPoints(playerPoints);
+		if (!playersPoints.containsKey(player)) {
+			playersPoints.put(player, new PlayerPoints());
+		}
+
+		playersPoints.get(player).put(category, score);
 	}
 
-	public Map<Player, Integer> getPlayerPoints() {
-		return playersPoints.entrySet().stream().collect(Collectors.toMap(
-				Map.Entry::getKey,
-				entry -> entry.getValue().getPoints()));
+	private String getAnswer(Category category, Player player) {
+		return Optional.ofNullable(playersAnswers.get(player))
+				.map(p -> p.get(category))
+				.map(String::toLowerCase)
+				.orElse(null);
 	}
 
 }
