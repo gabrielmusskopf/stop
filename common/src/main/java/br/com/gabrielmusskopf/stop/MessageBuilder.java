@@ -46,6 +46,11 @@ public abstract class MessageBuilder implements Message {
 			return this;
 		}
 
+		public Builder put(String i) {
+			i.chars().forEach(data::write);
+			return this;
+		}
+
 		public byte[] build() {
 			var size = MESSAGE_LENGTH_SIZE + MESSAGE_TYPE_SIZE + data.size();
 			var buffer = ByteBuffer.allocate(size);

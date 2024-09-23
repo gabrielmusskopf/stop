@@ -3,6 +3,7 @@ package br.com.gabrielmusskopf.stop.server.messages.response;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import br.com.gabrielmusskopf.stop.BytesUtils;
 import br.com.gabrielmusskopf.stop.Category;
 
 /*
@@ -28,7 +29,7 @@ public class WordReceivedMessage {
 	private void parseData(byte[] data) {
 		category = Category.singleFrom(data[0]);
 		int wordSize = data[1];
-		word = new String(readN(data, wordSize, 2));
+		word = BytesUtils.readString(data, wordSize, 2);
 	}
 
 	private byte[] readN(byte[] data, int n, int starting) {

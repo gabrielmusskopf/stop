@@ -20,12 +20,8 @@ public class Game implements Runnable {
 
 	private static final int DEFAULT_ROUNDS = 1;
 
-	// jogador1 - categoria1 - palavra
-	// jogador1 - categoria2 - palavra	private final Player player1;
-	// private final Map<Player, Map<String, String>> categoryAnswers;
-
 	private final List<Category> categories = List.of( // static for now
-			Category.NAME
+			Category.NAME, Category.ANIMAL
 			//Category.ANIMAL, Category.COLOR, Category.WORD, Category.LOCATION, Category.OBJECT
 	);
 
@@ -89,11 +85,13 @@ public class Game implements Runnable {
 
 			broadcast(MessageFactory.roundStarted(round.getLetter()));
 			round.start();
+			round.computePoints();
+
+			round.getPlayerPoints().forEach((player, points) -> log.info("Player {} points: {}", player.getName(), points));
 
 			log.info("A round {} ended", currentRound);
-			broadcast(MessageFactory.roundFinished());
+			broadcast(MessageFactory.roundFinished(round));
 		}
-
 	}
 
 	private void broadcast(Message message) throws IOException {
@@ -156,7 +154,7 @@ public class Game implements Runnable {
 
 	public Round nextRound() {
 		currentRound++;
-		var round = new Round(generateRoundLetter(), categories, player1, player2);
+		var round = new Round(generateRoundLetter(), roundsCount, categories, player1, player2);
 		this.rounds.add(round);
 		return round;
 	}

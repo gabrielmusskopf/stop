@@ -19,6 +19,7 @@ import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.RawMessage;
 import br.com.gabrielmusskopf.stop.client.exception.ConnectionClosedException;
 import br.com.gabrielmusskopf.stop.client.exception.GameEndedException;
+import br.com.gabrielmusskopf.stop.client.message.response.RoundFinishedMessage;
 
 @Slf4j
 @Getter
@@ -61,6 +62,7 @@ public class Round {
 				case ROUND_FINISHED -> {
 					log.info("Round finished");
 					executor.shutdownNow();
+					printAnswers(msg);
 					return;
 				}
 				case GAME_ENDED -> {
@@ -76,6 +78,26 @@ public class Round {
 				default -> log.error("Unexpected {} message. Ignoring.", msg.getType());
 			}
 		}
+	}
+
+	private void printAnswers(RawMessage msg) {
+		var roundFinishedMessage = new RoundFinishedMessage(msg.getData());
+
+		// TODO: make columnSize variable
+		int columnSize = 15;
+		System.out.printf("%sPlayer 1%sPlayer 2\n", " ".repeat(columnSize), " ".repeat(columnSize));
+
+		roundFinishedMessage.getPlayerAnswers().forEach((category, answers) -> {
+			var categorySpaced = "%s%s".formatted(category, " ".repeat(columnSize - category.name().length()));
+			var categoryAnswers = answers.stream()
+					.map(a -> "%s%s%s".formatted(
+							a.answer(),
+							" ".repeat(columnSize - a.answer().length()),
+							StringUtils.leftPad(String.valueOf(a.points()), 2, "0"))) // length 12
+					.collect(Collectors.joining(" ".repeat(6)));
+
+			System.out.printf("%s%s\n", categorySpaced, categoryAnswers);
+		});
 	}
 
 	private void userInteractionTask() {

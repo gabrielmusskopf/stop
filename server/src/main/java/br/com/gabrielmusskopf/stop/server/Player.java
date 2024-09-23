@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,7 +19,8 @@ import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 @RequiredArgsConstructor
 public class Player implements AutoCloseable, Readable {
 
-	private final String name = "player";
+	@Getter
+	private final String name = "player-" + RandomStringUtils.secure().nextAlphabetic(5);
 	private final Socket socket;
 	private final BufferedInputStream in;
 	private final DataOutputStream out;

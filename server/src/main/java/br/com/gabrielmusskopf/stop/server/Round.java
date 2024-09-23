@@ -3,7 +3,9 @@ package br.com.gabrielmusskopf.stop.server;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import br.com.gabrielmusskopf.stop.Category;
 
 @Slf4j
-@Getter
 public class Round {
 
 	private static final int ROUND_PLAYERS_COUNT = 2;
@@ -24,18 +25,22 @@ public class Round {
 
 	private final String id = "round-" + RandomStringUtils.secure().nextAlphabetic(5);
 
-	private final char letter;
-	private final List<Category> categories;
+	@Getter private final char letter;
+	@Getter private final int number;
+	@Getter private final List<Category> categories;
 	private final Player player1;
 	private final Player player2;
-	private LocalDateTime startTime;
+	@Getter private final Map<Player, PlayerAnswers> playersAnswers = new HashMap<>();
+	@Getter private final Map<Player, PlayerPoints> playersPoints = new HashMap<>();
 
-	private final Object lock = new Object();
 	private final List<Future<?>> futures = new ArrayList<>();
-	private boolean finished = false ;
 
-	public Round(char letter, List<Category> categories, Player player1, Player player2) {
+	private boolean finished = false ;
+	private Player requestStop;
+
+	public Round(char letter, int number, List<Category> categories, Player player1, Player player2) {
 		this.letter = letter;
+		this.number = number;
 		this.categories = categories;
 		this.player1 = player1;
 		this.player2 = player2;
@@ -45,7 +50,7 @@ public class Round {
 	public void start() throws InterruptedException {
 		var executor = Executors.newFixedThreadPool(ROUND_PLAYERS_COUNT);
 
-		startTime = LocalDateTime.now();
+		final var startTime = LocalDateTime.now();
 		log.debug("Starting round at {}", startTime);
 
 		for (int i = 0; i < ROUND_PLAYERS_COUNT; i++) {
@@ -68,7 +73,13 @@ public class Round {
 		try {
 			log.debug("Starting {} thread and waiting for client {} messages", id, player.getHost());
 
-			new RoundPlayer(categories, player).loop();
+			var roundPlayer = new RoundPlayer(categories, player);
+			var stop = roundPlayer.loop();
+			if (stop) {
+				requestStop = player;
+			}
+
+			playersAnswers.put(player, roundPlayer.getAnswers());
 
 			log.debug("Round {} thread finished", id);
 			interruptOtherPlayers();
@@ -88,6 +99,56 @@ public class Round {
 
 	private Player getPlayer(int i) {
 		return i % 2 == 0 ? player1 : player2;
+	}
+
+	public void computePoints() {
+		if (playersAnswers.isEmpty()) {
+			log.warn("Attempt to compute points for a unanswered round");
+			return;
+		}
+		if (!playersPoints.isEmpty()) {
+			log.warn("Attempt to compute points more than once for a round");
+			return;
+		}
+
+		categories.forEach(category -> {
+			var p1Points = computePlayerPoints(category, player1);
+			var p2Points = computePlayerPoints(category, player2);
+
+			playersPoints.put(player1, p1Points);
+			playersPoints.put(player2, p2Points);
+		});
+	}
+
+	private PlayerPoints computePlayerPoints(Category category, Player player) {
+		var playerPoints = new HashMap<Category, Integer>();
+
+		var otherPlayer = player1.equals(player) ? player2 : player1;
+
+		var playerAnswer = playersAnswers.get(player).get(category);
+		var otherPlayerAnswer = playersAnswers.get(otherPlayer).get(category);
+
+		if (playerAnswer == null || playerAnswer.charAt(0) != letter) {
+			// no answer for category or wrong letter
+			playerPoints.put(category, 0);
+
+		} else if (playerAnswer.equalsIgnoreCase(otherPlayerAnswer)) {
+			// do have a valid answer and the other answer the same
+			playerPoints.put(category, 5);
+
+		} else {
+			// valid unique answer
+			playerPoints.put(category, 10);
+		}
+
+		var isRequestStopPlayer = requestStop.equals(player);
+		return new PlayerPoints(playerPoints, isRequestStopPlayer);
+	}
+
+	public Map<Player, Integer> getPlayerPoints() {
+		var points = new HashMap<Player, Integer>();
+		playersPoints.forEach((player, pts) -> points.put(player, pts.getPoints()));
+		return points;
 	}
 
 }

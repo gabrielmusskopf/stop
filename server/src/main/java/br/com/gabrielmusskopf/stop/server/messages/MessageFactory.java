@@ -5,6 +5,7 @@ import java.util.List;
 import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.Message;
 import br.com.gabrielmusskopf.stop.MessageStatus;
+import br.com.gabrielmusskopf.stop.server.Round;
 import br.com.gabrielmusskopf.stop.server.messages.request.ConnectionClosedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.GameEndedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.GameStartedMessage;
@@ -40,8 +41,8 @@ public abstract class MessageFactory {
 		return new RoundStartedMessage(letter);
 	}
 
-	public static Message roundFinished() {
-		return new RoundFinishedMessage();
+	public static Message roundFinished(Round round) {
+		return new RoundFinishedMessage(round);
 	}
 
 }

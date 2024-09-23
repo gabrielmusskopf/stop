@@ -28,20 +28,20 @@ public class RoundPlayer {
 
 	private final List<Category> categories;
 	private final Player player;
-	private final Map<Category, String> answers;
+	private final PlayerAnswers answers;
 	private boolean stop = false;
 
 	public RoundPlayer(List<Category> categories, Player player) throws IOException {
 		this.categories = categories;
 		this.player = player;
-		this.answers = new HashMap<>();
+		this.answers = new PlayerAnswers();
 	}
 
-	public void loop() throws IOException {
+	public boolean loop() throws IOException {
 		while (!stop) {
 			if (Thread.currentThread().isInterrupted()) {
 				log.debug("Thread is interrupted");
-				return;
+				return false;
 			}
 			final var msg = RawMessage.readRawMessageOrUnknown(player);
 			if (MessageType.UNKNOWN.equals(msg.getType())) {
@@ -53,6 +53,7 @@ public class RoundPlayer {
 				default -> log.error("Unexpected client message received");
 			}
 		}
+		return true;
 	}
 
 	private void stop() {
@@ -62,7 +63,7 @@ public class RoundPlayer {
 			return;
 		}
 		var unanswered = categories.stream()
-				.filter(c -> !answers.containsKey(c))
+				.filter(c -> !answers.containAnswer(c))
 				.toList();
 
 		System.out.printf("Não é possível, existem categorias não respondidas: %s\n", unanswered);
@@ -74,5 +75,6 @@ public class RoundPlayer {
 
 		answers.put(m.getCategory(), m.getWord());
 	}
+
 
 }
