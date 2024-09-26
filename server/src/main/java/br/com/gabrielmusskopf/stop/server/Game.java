@@ -110,42 +110,13 @@ public class Game implements Runnable {
 	}
 
 	private void disconnectAll() throws IOException {
+		// TODO: finish the game when someone disconnect
 		if (player1 != null) player1.disconnect();
 		if (player2 != null) player2.disconnect();
 	}
 
 	private char generateRoundLetter() {
 		return 'a';
-	}
-
-	public void answer(Player player, String category, String word) {
-		//		if (player == null || category == null || word == null) {
-		//			throw new IllegalArgumentException();
-		//		}
-		//
-		//		if (!this.categories.contains(category)) {
-		//			throw new InvalidCategoryException();
-		//		}
-		//
-		//		if (!isValidWord(word)) {
-		//			throw new InvalidAnswerException();
-		//		}
-		//
-		//		var playerAnswers = this.categoryAnswers.get(player);
-		//		if (playerAnswers == null) {
-		//			throw new InvalidPlayerException();
-		//		}
-		//
-		//		var playerCategoryAnswer = playerAnswers.get(category);
-		//		if (playerCategoryAnswer != null) {
-		//			throw new InvalidCategoryException("Player {0} already answered category {1}", player);
-		//		}
-		//
-		//		playerAnswers.put(category, word);
-	}
-
-	private boolean isValidWord(String word) {
-		return word.toLowerCase().charAt(0) == getCurrentRound().getLetter();
 	}
 
 	public boolean hasRounds() {
@@ -159,11 +130,4 @@ public class Game implements Runnable {
 		return round;
 	}
 
-	public int getCurrentRoundCount() {
-		return rounds.size();
-	}
-
-	private Round getCurrentRound() {
-		return rounds.get(currentRound - 1);
-	}
 }

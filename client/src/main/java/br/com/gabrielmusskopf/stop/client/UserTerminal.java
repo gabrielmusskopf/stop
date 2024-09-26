@@ -27,6 +27,7 @@ public class UserTerminal {
 	}
 
 	public static void pause() {
+		System.out.println();
 		paused = true;
 	}
 

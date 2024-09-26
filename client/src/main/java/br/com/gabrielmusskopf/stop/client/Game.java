@@ -28,6 +28,7 @@ public class Game {
 
 		waitServerConfirmation();
 		log.info("Client is connected to a game");
+		System.out.println("Bem-vindo ao STOP"); //TODO banana lib to make this pretty \o/
 
 		// here the player is already connected to a game
 		while (true) {
@@ -39,10 +40,12 @@ public class Game {
 				}
 				case WAITING_PLAYERS -> {
 					log.info("Waiting another player to join");
+					System.out.println("Aguardando outro jogador para iniciar a partida");
 				}
 				case GAME_STARTED -> {
 					var gsm = new GameStartedMessage(msg.getData());
 					log.info("Game has started. The categories are {}", gsm.getCategories());
+					System.out.printf("O jogo iniciou, as categorias são %s", gsm.getCategoriesPretty());
 					categories = gsm.getCategories();
 				}
 				case ROUND_STARTED -> {
@@ -55,7 +58,7 @@ public class Game {
 					round.start();
 				}
 				case GAME_ENDED -> {
-					log.info("Game has ended. Thanks for playing :)");
+					System.out.println("O jogo encerrou. Obrigado por jogar :)");
 					UserTerminal.stop();
 					return;
 				}

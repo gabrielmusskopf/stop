@@ -9,14 +9,15 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Category {
-	NAME(1),        //000000001
-	OBJECT(2),     //000000010
-	LOCATION(4),    //000000100
-	COLOR(8),        //000001000
-	ANIMAL(16),        //000010000
-	WORD(32);        //000100000
+	NAME(1, "Nome"),        //000000001
+	OBJECT(2, "Objeto"),     //000000010
+	LOCATION(4, "CEP"),    //000000100
+	COLOR(8, "Cor"),        //000001000
+	ANIMAL(16, "Animal"),        //000010000
+	WORD(32, "Palavra");        //000100000
 
 	private final int code;
+	private final String name;
 
 	public static Category singleFrom(int x) {
 		var categories = from(x);

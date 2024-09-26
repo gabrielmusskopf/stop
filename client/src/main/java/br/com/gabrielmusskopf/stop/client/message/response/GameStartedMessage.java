@@ -35,4 +35,10 @@ public class GameStartedMessage {
 
 	}
 
+	public List<String> getCategoriesPretty() {
+		return categories.stream()
+				.map(Category::getName)
+				.toList();
+	}
+
 }

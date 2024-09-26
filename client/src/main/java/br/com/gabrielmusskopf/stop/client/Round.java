@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.RawMessage;
 import br.com.gabrielmusskopf.stop.client.exception.ConnectionClosedException;
-import br.com.gabrielmusskopf.stop.client.exception.GameEndedException;
 import br.com.gabrielmusskopf.stop.client.message.response.RoundFinishedMessage;
 
 @Slf4j
@@ -45,20 +44,11 @@ public class Round {
 
 		System.out.println("\nDigite o número da categoria, e após isso, a palavra");
 		System.out.println("Digite 'S' para solicitar STOP\n");
+		System.out.printf("Letra da rodada: %s\n\n", letter);
 		categories.forEach((number, category) -> System.out.printf("%d. %s%s", number, category, " ".repeat(8)));
 		System.out.println();
 
-		UserTerminal.start(action -> {
-			try {
-				switch (action) {
-					case SendWordUserAction a -> sendWord(a);
-					case StopUserAction a -> requestStop();
-					default -> log.warn("unknown action");
-				}
-			} catch (IOException e) {
-				log.error("IOException", e);
-			}
-		});
+		UserTerminal.start(this::clientRoundLoop);
 
 		// lister server messages
 		while (true) {
@@ -69,17 +59,12 @@ public class Round {
 				}
 				case ROUND_FINISHED -> {
 					log.info("Round finished");
-					printAnswers(msg);
 					UserTerminal.pause();
+					printAnswers(msg);
 					return;
 				}
-				case GAME_ENDED -> {
-					log.info("Game ended.");
-					UserTerminal.stop();
-					throw new GameEndedException();
-				}
-				case CONNECTION_CLOSED -> {
-					log.info("Client was disconnected by the server");
+				case GAME_ENDED, CONNECTION_CLOSED -> {
+					log.info("Game ended or client was disconnected by the server.");
 					UserTerminal.stop();
 					throw new ConnectionClosedException();
 				}
@@ -88,13 +73,25 @@ public class Round {
 		}
 	}
 
+	private void clientRoundLoop(UserAction action) {
+		try {
+			switch (action) {
+				case SendWordUserAction a -> sendWord(a);
+				case StopUserAction a -> requestStop();
+				default -> log.warn("unknown action");
+			}
+		} catch (IOException e) {
+			log.error("IOException", e);
+		}
+	}
+
 	private void printAnswers(RawMessage msg) {
 		var roundFinishedMessage = new RoundFinishedMessage(msg.getData());
 
 		// TODO: make columnSize variable
-		int columnSize = 15;
-		System.out.printf("Round %d finished\n", roundFinishedMessage.getNumber());
-		System.out.printf("%sPlayer 1%sPlayer 2\n", " ".repeat(columnSize), " ".repeat(columnSize));
+		int columnSize = 16;
+		System.out.printf("\nRodada %d finalizou\n", roundFinishedMessage.getNumber());
+		System.out.printf("\n%sJogador 1%sJogador 2\n", " ".repeat(columnSize), " ".repeat(columnSize));
 
 		roundFinishedMessage.getPlayerAnswers().forEach((category, answers) -> {
 			var categorySpaced = "%s%s".formatted(category, " ".repeat(columnSize - category.name().length()));
@@ -107,6 +104,7 @@ public class Round {
 
 			System.out.printf("%s%s\n", categorySpaced, categoryAnswers);
 		});
+		System.out.println();
 	}
 
 	private void sendWord(SendWordUserAction action) throws IOException {
