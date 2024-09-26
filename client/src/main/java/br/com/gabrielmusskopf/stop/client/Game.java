@@ -56,6 +56,7 @@ public class Game {
 				}
 				case GAME_ENDED -> {
 					log.info("Game has ended. Thanks for playing :)");
+					UserTerminal.stop();
 					return;
 				}
 				case CONNECTION_CLOSED -> {

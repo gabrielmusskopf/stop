@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -50,9 +48,19 @@ public class Round {
 		categories.forEach((number, category) -> System.out.printf("%d. %s%s", number, category, " ".repeat(8)));
 		System.out.println();
 
-		var executor = Executors.newSingleThreadExecutor();
-		executor.submit(this::userInteractionTask);
+		UserTerminal.start(action -> {
+			try {
+				switch (action) {
+					case SendWordUserAction a -> sendWord(a);
+					case StopUserAction a -> requestStop();
+					default -> log.warn("unknown action");
+				}
+			} catch (IOException e) {
+				log.error("IOException", e);
+			}
+		});
 
+		// lister server messages
 		while (true) {
 			var msg = RawMessage.readRawMessageOrUnknown(player);
 			switch (msg.getType()) {
@@ -61,18 +69,18 @@ public class Round {
 				}
 				case ROUND_FINISHED -> {
 					log.info("Round finished");
-					executor.shutdownNow();
 					printAnswers(msg);
+					UserTerminal.pause();
 					return;
 				}
 				case GAME_ENDED -> {
 					log.info("Game ended.");
-					executor.shutdownNow();
+					UserTerminal.stop();
 					throw new GameEndedException();
 				}
 				case CONNECTION_CLOSED -> {
 					log.info("Client was disconnected by the server");
-					executor.shutdownNow();
+					UserTerminal.stop();
 					throw new ConnectionClosedException();
 				}
 				default -> log.error("Unexpected {} message. Ignoring.", msg.getType());
@@ -85,6 +93,7 @@ public class Round {
 
 		// TODO: make columnSize variable
 		int columnSize = 15;
+		System.out.printf("Round %d finished\n", roundFinishedMessage.getNumber());
 		System.out.printf("%sPlayer 1%sPlayer 2\n", " ".repeat(columnSize), " ".repeat(columnSize));
 
 		roundFinishedMessage.getPlayerAnswers().forEach((category, answers) -> {
@@ -100,49 +109,17 @@ public class Round {
 		});
 	}
 
-	private void userInteractionTask() {
-		try (var scanner = new Scanner(System.in)) {
-			while (!Thread.interrupted()) {
-				System.out.print("> ");
-
-				waitInteraction();
-				var action = scanner.next();
-
-				if (StringUtils.isNumeric(action)) {
-					sendWord(action, scanner);
-					continue;
-				}
-				switch (action) {
-					case "S", "s" -> requestStop();
-					default -> System.out.printf("Opção %s desconhecida", action);
-				}
-			}
-		} catch (IOException e) {
-			log.error(e.getMessage());
-		} catch (InterruptedException e) {
-			// Expected interruption by the main thread
-			// println after the last ">"
-			System.out.println();
-		}
-	}
-
-	private void sendWord(String action, Scanner scanner) throws IOException, InterruptedException {
-		int categoryKey = Integer.parseInt(action);
-		if (!categories.containsKey(categoryKey)) {
-			System.out.printf("Categoria %s desconhecida\n", categoryKey);
+	private void sendWord(SendWordUserAction action) throws IOException {
+		if (!categories.containsKey(action.getCategory())) {
+			System.out.printf("Categoria %s desconhecida\n", action.getCategory());
 			return;
 		}
-		waitInteraction();
-		scanner.nextLine(); // skip the last \n
 
-		var category = categories.get(categoryKey);
+		var category = categories.get(action.getCategory());
 
-		waitInteraction();
-		var word = scanner.nextLine();
-
-		var message = MessageFactory.sendWord(category, word);
+		var message = MessageFactory.sendWord(category, action.getWord());
 		player.send(message);
-		answers.put(category, word);
+		answers.put(category, action.getWord());
 	}
 
 	private void requestStop() throws IOException {
@@ -157,14 +134,6 @@ public class Round {
 		var message = MessageFactory.stop();
 		player.send(message);
 		log.info("Player requested stop");
-	}
-
-	// used for keep thread cpu bounded instead of io bounded,
-	// so the main thread can interrupt it
-	private void waitInteraction() throws IOException, InterruptedException {
-		while (System.in.available() <= 0) {
-			Thread.sleep(100);
-		}
 	}
 
 }

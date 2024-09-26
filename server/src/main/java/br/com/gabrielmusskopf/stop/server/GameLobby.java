@@ -13,8 +13,6 @@ public class GameLobby {
 		final var game = GamePool.getGame();
 		if (game == null) {
 			//IDEA: maybe here client can go to a queue and wait until the server can handle new games
-			//TODO: This need to be a type of message to the client knows what to do
-			//player.send("There are no games waiting for players and the server cannot handle new games. Please try again later.");
 			player.disconnect();
 			log.info("Disconnecting player {}", player.getHost());
 			return;

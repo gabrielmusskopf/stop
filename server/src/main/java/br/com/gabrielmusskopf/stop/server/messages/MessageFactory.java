@@ -29,8 +29,8 @@ public abstract class MessageFactory {
 		return new GameStartedMessage(categories);
 	}
 
-	public static Message gameEnded() {
-		return new GameEndedMessage();
+	public static Message gameEnded(List<Round> rounds) {
+		return new GameEndedMessage(rounds);
 	}
 
 	public static Message closeConnection() {

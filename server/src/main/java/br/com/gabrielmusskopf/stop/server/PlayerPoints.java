@@ -17,6 +17,12 @@ public class PlayerPoints {
 				.getPoints();
 	}
 
+	public int getPoints() {
+		return answersPoints.values().stream()
+				.map(Score::getPoints)
+				.reduce(0, Integer::sum);
+	}
+
 	public void put(Category category, Score score) {
 		answersPoints.put(category, score);
 	}

@@ -18,7 +18,7 @@ import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 @Getter
 public class Game implements Runnable {
 
-	private static final int DEFAULT_ROUNDS = 1;
+	private static final int DEFAULT_ROUNDS = 2;
 
 	private final List<Category> categories = List.of( // static for now
 			Category.NAME, Category.ANIMAL
@@ -69,7 +69,7 @@ public class Game implements Runnable {
 
 			gameState = GameState.FINISHED;
 			GamePool.endGame();
-			broadcast(MessageFactory.gameEnded());
+			broadcast(MessageFactory.gameEnded(rounds));
 			disconnectAll();
 			log.info("The game '{}' finished. Ongoing games: {}", identifier, GamePool.ongoingGamesCount());
 
