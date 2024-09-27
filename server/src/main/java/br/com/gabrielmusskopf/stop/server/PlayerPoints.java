@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import lombok.Getter;
+
 import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.Score;
 
 public class PlayerPoints {
 
+	@Getter
 	private final Map<Category, Score> answersPoints = new HashMap<>();
 
 	public int get(Category category) {

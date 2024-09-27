@@ -25,7 +25,7 @@ public class StopClient {
 
 		configure();
 
-		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var player = new Player(socket)) {
+		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var player = new Player(socket, SERVER_PORT)) {
 			var game = new Game(player);
 			game.start();
 			log.info("The joy is over, see you space cowboy");

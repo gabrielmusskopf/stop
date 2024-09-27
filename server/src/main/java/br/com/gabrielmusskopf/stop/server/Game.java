@@ -90,7 +90,7 @@ public class Game implements Runnable {
 			round.start();
 			round.computePoints();
 
-			round.getPlayersPoints().forEach((player, points) -> log.info("Player {} points: {}", player.getName(), points));
+			round.getPlayersPoints().forEach((player, points) -> log.info("Player {} points: {}", player.getName(), points.getAnswersPoints()));
 
 			log.info("Round {} ended", currentRound);
 			broadcast(MessageFactory.roundFinished(round));

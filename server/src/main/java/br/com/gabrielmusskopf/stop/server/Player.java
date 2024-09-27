@@ -48,7 +48,7 @@ public class Player implements AutoCloseable, Readable {
 			out.write(message.serialize());
 			out.flush();
 		} catch (IOException e) {
-			log.error("Could not write message to client {} from {}. Closing connection.", name, getHost());
+			log.error("Could not write message to client {} from {}. Closing connection: {}", name, getHost(), e.getMessage());
 			close();
 			throw e;
 		}

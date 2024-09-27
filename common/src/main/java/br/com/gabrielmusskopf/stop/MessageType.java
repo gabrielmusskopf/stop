@@ -16,7 +16,8 @@ public enum MessageType {
 	ROUND_FINISHED(7),
 	CATEGORY_WORD(8),
 	STOP(9),
-	PING(10);
+	PING(10),
+	WAIT_CONNECTION_CONFIRMATION(11);
 
 	private final int code;
 

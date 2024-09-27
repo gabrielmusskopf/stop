@@ -36,6 +36,9 @@ public class Game {
 			// game state machine
 			var msg = RawMessage.readRawMessageOrUnknown(player);
 			switch (msg.getType()) {
+				case PLAYER_CONNECTED -> {
+					// player restart socket connection
+				}
 				case UNKNOWN -> {
 					// read timed out
 				}
@@ -61,12 +64,15 @@ public class Game {
 				case GAME_ENDED -> {
 					System.out.println("O jogo encerrou. Obrigado por jogar :)");
 					UserTerminal.stop();
+					player.close();
 					return;
 				}
 				case CONNECTION_CLOSED -> {
+					// was not possible to connect again
 					log.info("Client was disconnected by the server");
 					System.out.println("Você foi desconectado pelo servidor, lamento...");
 					UserTerminal.stop();
+					player.close();
 					return;
 				}
 				default -> log.warn("Unexpected message of type {}. Ignoring it.", msg.getType());

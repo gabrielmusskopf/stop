@@ -41,6 +41,8 @@ public class RoundPlayer {
 			switch (msg.getType()) {
 				case CATEGORY_WORD -> receiveWord(msg);
 				case STOP -> stop();
+				case PING -> { // hearbeat
+				}
 				default -> log.error("Unexpected client message received");
 			}
 		}

@@ -1,10 +1,9 @@
 package br.com.gabrielmusskopf.stop.client;
 
-import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import br.com.gabrielmusskopf.stop.Message;
@@ -13,49 +12,32 @@ import br.com.gabrielmusskopf.stop.Readable;
 @Slf4j
 public class Player implements AutoCloseable, Readable {
 
-	private final Socket socket;
-	private final BufferedInputStream in;
-	private final DataOutputStream out;
+	private final ConnectionHandler connectionHandler;
+	@Getter
+	private final String host;
 
-	public Player(Socket socket) throws IOException {
-		this.socket = socket;
-		this.socket.setSoTimeout(3000);
-		this.socket.setSoLinger(true, 0);
-		this.socket.setKeepAlive(true);
-		this.in = new BufferedInputStream(socket.getInputStream());
-		this.out = new DataOutputStream(socket.getOutputStream());
+	public Player(Socket socket, int originalPort) throws IOException {
+		this.connectionHandler = new ConnectionHandler(socket, originalPort);
+		this.host = socket.getInetAddress().getHostAddress();
 	}
 
 	public int read() throws IOException {
-		return in.read();
+		return connectionHandler.read();
 	}
 
 	public byte[] read(int size) throws IOException {
 		var buff = new byte[size];
-		in.read(buff, 0, size);
+		connectionHandler.read(buff, 0, size);
 		return buff;
 	}
 
 	public void send(Message message) throws IOException {
-		try {
-			out.write(message.serialize());
-			out.flush();
-		} catch (IOException e) {
-			log.error("Could not write message to client {}. Closing connection.", getHost());
-			close();
-		}
-	}
-
-	public String getHost() {
-		return socket.getInetAddress().getHostAddress();
+		connectionHandler.send(message);
 	}
 
 	@Override
 	public void close() throws IOException {
-		socket.close();
-		in.close();
-		out.close();
-		log.debug("Socket closed.");
+		connectionHandler.close();
 	}
 
 }
