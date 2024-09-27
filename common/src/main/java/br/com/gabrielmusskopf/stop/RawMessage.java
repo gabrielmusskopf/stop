@@ -1,6 +1,7 @@
 package br.com.gabrielmusskopf.stop;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
 import lombok.Getter;
@@ -24,8 +25,12 @@ public class RawMessage {
 	}
 
 	private RawMessage() {
+		this(MessageType.UNKNOWN);
+	}
+
+	private RawMessage(MessageType messageType) {
 		this.size = 0;
-		this.type = MessageType.UNKNOWN;
+		this.type = messageType;
 		this.data = new byte[] {};
 	}
 
@@ -52,11 +57,23 @@ public class RawMessage {
 	 * @throws IOException from {@link Readable}
 	 */
 	public static RawMessage readRawMessage(Readable in) throws IOException {
-		var size = in.read();
-		var typeCode = in.read();
-		var data = in.read(size - 2);
+		try {
+			var size = readOrDie(in);
+			var typeCode = readOrDie(in);
+			var data = in.read(size - 2);
 
-		return new RawMessage(size, typeCode, data);
+			return new RawMessage(size, typeCode, data);
+		} catch (ConnectException e) {
+			return new RawMessage(MessageType.CONNECTION_CLOSED);
+		}
+	}
+
+	private static int readOrDie(Readable in) throws IOException {
+		int read = in.read();
+		if (read == -1) {
+			throw new ConnectException("Server no longer connected");
+		}
+		return read;
 	}
 
 	public static RawMessage unknown() {

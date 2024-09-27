@@ -21,6 +21,7 @@ public class Player implements AutoCloseable, Readable {
 		this.socket = socket;
 		this.socket.setSoTimeout(3000);
 		this.socket.setSoLinger(true, 0);
+		this.socket.setKeepAlive(true);
 		this.in = new BufferedInputStream(socket.getInputStream());
 		this.out = new DataOutputStream(socket.getOutputStream());
 	}

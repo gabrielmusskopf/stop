@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.RawMessage;
 import br.com.gabrielmusskopf.stop.client.exception.ConnectionClosedException;
+import br.com.gabrielmusskopf.stop.client.message.MessageFactory;
 import br.com.gabrielmusskopf.stop.client.message.response.RoundFinishedMessage;
 
 @Slf4j

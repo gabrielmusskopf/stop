@@ -1,4 +1,4 @@
-package br.com.gabrielmusskopf.stop.client;
+package br.com.gabrielmusskopf.stop.client.message;
 
 import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.Message;
