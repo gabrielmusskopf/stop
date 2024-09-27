@@ -2,6 +2,7 @@ package br.com.gabrielmusskopf.stop.client;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,16 +65,36 @@ public class Game {
 				}
 				case CONNECTION_CLOSED -> {
 					log.info("Client was disconnected by the server");
+					System.out.println("Você foi desconectado pelo servidor, lamento...");
+					UserTerminal.stop();
 					return;
 				}
-				default -> log.error("Unexpected message of type {}. Ignoring it.", msg.getType());
+				default -> log.warn("Unexpected message of type {}. Ignoring it.", msg.getType());
 			}
 		}
 	}
 
 	// wait for the server to confirm if the client was able to join a game
 	private void waitServerConfirmation() throws IOException {
-		var msg = RawMessage.readRawMessage(player);
+		int tries = 5;
+		int c = 0;
+		final int waitSeconds = 1;
+		var msg = RawMessage.unknown();
+
+		while (c < tries) {
+			log.debug("Waiting connect confimation {}/{}", c + 1, tries);
+			msg = RawMessage.readRawMessageOrUnknown(player);
+			if (!MessageType.UNKNOWN.equals(msg.getType())) {
+				log.debug("Connected {}/{}", c + 1, tries);
+				break;
+			}
+			gentleSleep(waitSeconds);
+			c++;
+		}
+
+		if (MessageType.UNKNOWN.equals(msg.getType())) {
+			throw new ConnectionClosedException("Could not connect to server after {} tries", c);
+		}
 
 		if (MessageType.CONNECTION_CLOSED.equals(msg.getType())) {
 			throw new ConnectionClosedException("Unexpected connection closure");
@@ -85,6 +106,14 @@ public class Game {
 		var message = new PlayerConnectedMessage(msg.getData());
 		if (!MessageStatus.OK.equals(message.getStatus())) {
 			throw new UnexpectedMessageException("Connection request was not successful");
+		}
+	}
+
+	private void gentleSleep(int waitSeconds) {
+		try {
+			Thread.sleep(TimeUnit.SECONDS.toMillis(waitSeconds));
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

@@ -36,9 +36,9 @@ public class Round {
 	private final Player player1;
 	private final Player player2;
 	@Getter
-	private final Map<Player, PlayerAnswers> playersAnswers = new HashMap<>();
+	private final Map<Player, PlayerAnswers> playersAnswers;
 	@Getter
-	private final Map<Player, PlayerPoints> playersPoints = new HashMap<>();
+	private final Map<Player, PlayerPoints> playersPoints;
 
 	private final List<Future<?>> futures = new ArrayList<>();
 
@@ -50,6 +50,13 @@ public class Round {
 		this.categories = categories;
 		this.player1 = player1;
 		this.player2 = player2;
+		this.playersAnswers = new HashMap<>();
+		this.playersPoints = new HashMap<>();
+
+		this.playersAnswers.put(player1, new PlayerAnswers());
+		this.playersAnswers.put(player2, new PlayerAnswers());
+		this.playersPoints.put(player1, new PlayerPoints());
+		this.playersPoints.put(player2, new PlayerPoints());
 	}
 
 	// starts two threads to receive both answers at the same time
@@ -109,10 +116,6 @@ public class Round {
 			log.warn("Attempt to compute points for a unanswered round");
 			return;
 		}
-		if (!playersPoints.isEmpty()) {
-			log.warn("Attempt to compute points more than once for a round");
-			return;
-		}
 
 		categories.forEach(category -> {
 			computePlayerPoints(category, player1);
@@ -125,6 +128,7 @@ public class Round {
 
 		var playerAnswer = getAnswer(category, player);
 		var otherPlayerAnswer = getAnswer(category, otherPlayer);
+		log.debug("Computing {} points", player.getName());
 
 		Score score;
 		if (playerAnswer == null || playerAnswer.charAt(0) != letter) {

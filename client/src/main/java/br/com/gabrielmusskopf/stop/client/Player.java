@@ -20,6 +20,7 @@ public class Player implements AutoCloseable, Readable {
 	public Player(Socket socket) throws IOException {
 		this.socket = socket;
 		this.socket.setSoTimeout(3000);
+		this.socket.setSoLinger(true, 0);
 		this.in = new BufferedInputStream(socket.getInputStream());
 		this.out = new DataOutputStream(socket.getOutputStream());
 	}
@@ -40,7 +41,7 @@ public class Player implements AutoCloseable, Readable {
 			out.flush();
 		} catch (IOException e) {
 			log.error("Could not write message to client {}. Closing connection.", getHost());
-			disconnect();
+			close();
 		}
 	}
 
@@ -48,15 +49,12 @@ public class Player implements AutoCloseable, Readable {
 		return socket.getInetAddress().getHostAddress();
 	}
 
-	public void disconnect() throws IOException {
+	@Override
+	public void close() throws IOException {
 		socket.close();
 		in.close();
 		out.close();
-	}
-
-	@Override
-	public void close() throws IOException {
-		disconnect();
+		log.debug("Socket closed.");
 	}
 
 }

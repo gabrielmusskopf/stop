@@ -9,6 +9,7 @@ import br.com.gabrielmusskopf.stop.server.Round;
 import br.com.gabrielmusskopf.stop.server.messages.request.ConnectionClosedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.GameEndedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.GameStartedMessage;
+import br.com.gabrielmusskopf.stop.server.messages.request.PingMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.RoundFinishedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.RoundStartedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.WaitingPlayersMessage;
@@ -43,6 +44,10 @@ public abstract class MessageFactory {
 
 	public static Message roundFinished(Round round) {
 		return new RoundFinishedMessage(round);
+	}
+
+	public static Message ping() {
+		return new PingMessage();
 	}
 
 }

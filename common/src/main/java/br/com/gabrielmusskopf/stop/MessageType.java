@@ -15,7 +15,8 @@ public enum MessageType {
 	ROUND_STARTED(6),
 	ROUND_FINISHED(7),
 	CATEGORY_WORD(8),
-	STOP(9);
+	STOP(9),
+	PING(10);
 
 	private final int code;
 

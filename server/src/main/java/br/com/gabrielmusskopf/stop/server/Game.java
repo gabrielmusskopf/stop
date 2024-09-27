@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.Message;
 import br.com.gabrielmusskopf.stop.server.exception.IllegalGameException;
+import br.com.gabrielmusskopf.stop.server.exception.UnexpectedGameEndException;
 import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 
 @Slf4j
@@ -75,11 +76,13 @@ public class Game implements Runnable {
 
 		} catch (InterruptedException | IOException e) {
 			throw new RuntimeException(e);
+		} catch (UnexpectedGameEndException e) {
+			log.error("Game was finished unexpectedly");
 		}
 	}
 
 	private void gameLoop() throws InterruptedException, IOException {
-		while (hasRounds()) {
+		while (GameState.RUNNING.equals(gameState) && hasRounds()) {
 			var round = nextRound();
 			log.info("A round {} started", currentRound);
 
@@ -89,30 +92,98 @@ public class Game implements Runnable {
 
 			round.getPlayersPoints().forEach((player, points) -> log.info("Player {} points: {}", player.getName(), points));
 
-			log.info("A round {} ended", currentRound);
+			log.info("Round {} ended", currentRound);
 			broadcast(MessageFactory.roundFinished(round));
 		}
 	}
 
 	private void broadcast(Message message) throws IOException {
-		if (player1 != null) player1.send(message);
-		if (player2 != null) player2.send(message);
+		boolean hasError = false;
+
+		try {
+			if (player1 != null) player1.send(message);
+		} catch (IOException e) {
+			log.error("Error when broadcasting to {}.", player1.getName());
+			hasError = true;
+		}
+
+		try {
+			if (player2 != null) player2.send(message);
+		} catch (IOException e) {
+			log.error("Error when broadcasting to {}.", player2.getName());
+			hasError = true;
+		}
+
+		if (hasError) {
+			endUnexpetedly();
+		}
+	}
+
+	private void endUnexpetedly() {
+		gameState = GameState.FINISHED;
+		GamePool.endGame();
+		sendToSurvivors(MessageFactory.closeConnection());
+		throw new UnexpectedGameEndException();
+	}
+
+	private void sendToSurvivors(Message message) {
+		try {
+			if (player1 != null && player1.isConnected()) player1.send(message);
+		} catch (IOException ignored) {
+		}
+		try {
+			if (player2 != null && player2.isConnected()) player2.send(message);
+		} catch (IOException ignored) {
+		}
 	}
 
 	public boolean hasEnoughPlayers() {
 		return player1 != null && player2 != null;
 	}
 
-	public boolean hasSomeConnectedPlayer() {
-		if (player1 != null) return player1.isConnected();
-		if (player2 != null) return player2.isConnected();
+	public boolean isStillWaiting() {
+		if (GameState.WAITING_PLAYER.equals(gameState)) {
+			return hasOneConnectedPlayer();
+		}
 		return false;
 	}
 
-	private void disconnectAll() throws IOException {
+	public boolean isEmpty() {
+		return player1 == null && player2 == null;
+	}
+
+	public boolean hasSomeConnectedPlayer() {
+		return isPlayer1Connected() || isPlayer2Connected();
+	}
+
+	public boolean hasOneConnectedPlayer() {
+		return (isPlayer1Connected() && !isPlayer2Connected()) || (!isPlayer1Connected() && isPlayer2Connected());
+	}
+
+	public boolean isPlayer1Connected() {
+		return player1 != null && player1.isConnected();
+	}
+
+	public boolean isPlayer2Connected() {
+		return player2 != null && player2.isConnected();
+	}
+
+	private void disconnectAll() {
 		// TODO: finish the game when someone disconnect
-		if (player1 != null) player1.disconnect();
-		if (player2 != null) player2.disconnect();
+		if (player1 != null) {
+			if (player1.isConnected()) {
+				player1.gracefullyDisconnect();
+			} else {
+				player1.close();
+			}
+		}
+		if (player2 != null) {
+			if (player2.isConnected()) {
+				player2.gracefullyDisconnect();
+			} else {
+				player2.close();
+			}
+		}
 	}
 
 	private char generateRoundLetter() {
@@ -128,6 +199,27 @@ public class Game implements Runnable {
 		var round = new Round(generateRoundLetter(), roundsCount, categories, player1, player2);
 		this.rounds.add(round);
 		return round;
+	}
+
+	public void removeAllPlayers() {
+		if (player1 != null) {
+			player1.close();
+			player1 = null;
+		}
+		if (player2 != null) {
+			player2.close();
+			player2 = null;
+		}
+	}
+
+	public void removePlayer(Player player) {
+		if (player1.equals(player)) {
+			player1.gracefullyDisconnect();
+			player1 = null;
+		} else if (player2.equals(player)) {
+			player2.gracefullyDisconnect();
+			player2 = null;
+		}
 	}
 
 }

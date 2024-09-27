@@ -14,7 +14,7 @@ import ch.qos.logback.classic.Logger;
 @Slf4j
 public class StopClient {
 
-	private static final boolean LOG_ENABLED = false;
+	private static final boolean LOG_ENABLED = true;
 	private static final String LOG_LEVEL = "DEBUG";
 
 	private static final String SERVER_ADDRESS = "localhost";
@@ -33,6 +33,7 @@ public class StopClient {
 			log.error("An exception occurred", e);
 		} catch (BaseException e) {
 			// That's fine
+			log.error(e.getMessage());
 		}
 	}
 

@@ -9,4 +9,8 @@ public class ConnectionClosedException extends BaseException {
 		super(message);
 	}
 
+	public ConnectionClosedException(String message, Object... params) {
+		super(message, params);
+	}
+
 }

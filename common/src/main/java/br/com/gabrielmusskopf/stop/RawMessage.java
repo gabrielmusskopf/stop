@@ -2,9 +2,6 @@ package br.com.gabrielmusskopf.stop;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.Optional;
-
-import javax.swing.text.html.Option;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +26,12 @@ public class RawMessage {
 	private RawMessage() {
 		this.size = 0;
 		this.type = MessageType.UNKNOWN;
-		this.data = new byte[]{};
+		this.data = new byte[] {};
 	}
 
 	/**
 	 * Read from {@link Readable} until timeout. The message read must have the expected format
+	 *
 	 * @param in a readable
 	 * @return message read or message of type UNKNOWN if nothing was read whiting timeout
 	 * @throws IOException from {@link Readable}
@@ -48,6 +46,7 @@ public class RawMessage {
 
 	/**
 	 * Read from {@link Readable}. The message read must have the expected format
+	 *
 	 * @param in a readable
 	 * @return message read
 	 * @throws IOException from {@link Readable}
@@ -60,7 +59,7 @@ public class RawMessage {
 		return new RawMessage(size, typeCode, data);
 	}
 
-	private static RawMessage unknown() {
+	public static RawMessage unknown() {
 		return new RawMessage();
 	}
 
