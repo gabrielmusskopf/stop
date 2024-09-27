@@ -10,20 +10,30 @@ import lombok.extern.slf4j.Slf4j;
 import br.com.gabrielmusskopf.stop.client.exception.BaseException;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.FileAppender;
 
 @Slf4j
 public class StopClient {
 
 	private static final boolean LOG_ENABLED = true;
-	private static final String LOG_LEVEL = "DEBUG";
+	private static final boolean LOG_TO_FILE = true;
+	private static final boolean LOG_TO_CONSOLE = false;
+	private static final Level LOG_LEVEL = Level.DEBUG;
 
 	private static final String SERVER_ADDRESS = "localhost";
 	private static final int SERVER_PORT = 12345;
 
 	public static void main(String[] args) {
-		// TODO: test if server still reachable
-
+		log.info("------ Configuration ------");
 		configure();
+		log.info("PID {}", ProcessHandle.current().pid());
+		log.info("---------------------------");
+
+		log.info("===========================");
+		log.info("       STOP SERVER");
+		log.info("===========================");
 
 		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var player = new Player(socket, SERVER_PORT)) {
 			var game = new Game(player);
@@ -39,12 +49,39 @@ public class StopClient {
 
 	private static void configure() {
 		final var rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-
 		if (!LOG_ENABLED) {
 			rootLogger.setLevel(Level.OFF);
-		} else {
-			rootLogger.setLevel(Level.toLevel(LOG_LEVEL));
+			return;
+		}
+		rootLogger.setLevel(LOG_LEVEL);
+		configureAdapter(rootLogger, "CONSOLE", LOG_TO_CONSOLE);
+		configureAdapter(rootLogger, "FILE", LOG_TO_FILE);
+	}
+
+	private static void configureAdapter(Logger logger, String name, boolean enable) {
+		final var appender = switch (name) {
+			case "CONSOLE" -> (ConsoleAppender<ILoggingEvent>) logger.getAppender(name);
+			case "FILE" -> (FileAppender<ILoggingEvent>) logger.getAppender(name);
+			default -> {
+				log.error("Appender name must match what is defined in logback.xml");
+				yield null;
+			}
+		};
+		if (appender == null) {
+			return;
 		}
 
+		final boolean isAttached = logger.isAttached(appender);
+		if (enable && !isAttached) {
+			logger.addAppender(appender);
+		} else if (!enable && isAttached) {
+			logger.detachAppender(appender);
+		}
+
+		if (isAttached) {
+			log.debug("{} ({}) appender attached", appender.getName(), appender.getClass().getSimpleName());
+		} else {
+			log.debug("{} ({}) appender dettached", appender.getName(), appender.getClass().getSimpleName());
+		}
 	}
 }
