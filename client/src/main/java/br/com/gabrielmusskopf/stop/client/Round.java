@@ -28,6 +28,7 @@ public class Round {
 	private final Player player;
 	private final Map<Integer, Category> categories;
 	private final Map<Category, String> answers;
+	private final UserTerminal userTerminal;
 
 	public Round(char letter, Player player, List<Category> categories) {
 		this.letter = letter;
@@ -37,6 +38,7 @@ public class Round {
 				.range(0, categories.size())
 				.boxed()
 				.collect(Collectors.toMap(i -> i + 1, categories::get));
+		this.userTerminal = new UserTerminal(this::clientRoundLoop);
 	}
 
 	public void start() throws IOException {
@@ -45,28 +47,27 @@ public class Round {
 
 		System.out.println("\nDigite o número da categoria, e após isso, a palavra");
 		System.out.println("Digite 'S' para solicitar STOP\n");
-		System.out.printf("Letra da rodada: %s\n\n", letter);
+		System.out.printf("Letra da rodada: '%s'\n\n", letter);
 		categories.forEach((number, category) -> System.out.printf("%d. %s%s", number, category, " ".repeat(8)));
 		System.out.println();
-
-		UserTerminal.start(this::clientRoundLoop);
 
 		// lister server messages
 		while (true) {
 			var msg = RawMessage.readRawMessageOrUnknown(player);
+			// TODO: broadcast when someone request a valid STOP
 			switch (msg.getType()) {
 				case UNKNOWN -> {
 					// read timed out
 				}
 				case ROUND_FINISHED -> {
 					log.info("Round finished");
-					UserTerminal.pause();
+					userTerminal.stop();
 					printAnswers(msg);
 					return;
 				}
 				case GAME_ENDED, CONNECTION_CLOSED -> {
 					log.info("Game ended or client was disconnected by the server.");
-					UserTerminal.stop();
+					userTerminal.stop();
 					throw new ConnectionClosedException();
 				}
 				default -> log.error("Unexpected {} message. Ignoring.", msg.getType());
@@ -113,6 +114,11 @@ public class Round {
 			System.out.printf("Categoria %s desconhecida\n", action.getCategory());
 			return;
 		}
+		var wordLetter = action.getWord().toLowerCase().charAt(0);
+		// FIXME: letter still the same from the previous round
+		if (wordLetter != letter) {
+			System.out.printf("Letra inicial inválida: %c\n", wordLetter);
+		}
 
 		var category = categories.get(action.getCategory());
 
@@ -133,6 +139,15 @@ public class Round {
 		var message = MessageFactory.stop();
 		player.send(message);
 		log.info("Player requested stop");
+		userTerminal.pause();
+		System.out.println("""
+				_________________              ______
+				___  /_  ___/_  /_________________  /
+				__  /_____ \\_  __/  __ \\__  __ \\_  /
+				 /_/ ____/ // /_ / /_/ /_  /_/ //_/
+				(_)  /____/ \\__/ \\____/_  .___/(_)
+				                       /_/
+				""");
 	}
 
 }

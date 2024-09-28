@@ -19,28 +19,35 @@ public class StopClient {
 
 	private static final boolean LOG_ENABLED = true;
 	private static final boolean LOG_TO_FILE = true;
-	private static final boolean LOG_TO_CONSOLE = false;
+	private static final boolean LOG_TO_CONSOLE = true;
 	private static final Level LOG_LEVEL = Level.DEBUG;
 
 	private static final String SERVER_ADDRESS = "localhost";
 	private static final int SERVER_PORT = 12345;
 
 	public static void main(String[] args) {
-		log.info("------ Configuration ------");
 		configure();
 		log.info("PID {}", ProcessHandle.current().pid());
-		log.info("---------------------------");
 
 		log.info("===========================");
 		log.info("       STOP SERVER");
 		log.info("===========================");
 
 		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var player = new Player(socket, SERVER_PORT)) {
+			System.out.println("""
+					   _____ __
+					  / ___// /_____  ____
+					  \\__ \\/ __/ __ \\/ __ \\
+					 ___/ / /_/ /_/ / /_/ /
+					/____/\\__/\\____/ .___/
+					              /_/
+					""");
 			var game = new Game(player);
 			game.start();
 			log.info("The joy is over, see you space cowboy");
 		} catch (IOException e) {
 			log.error("An exception occurred", e);
+			System.out.println("Houve um problema com a conexão ao servidor");
 		} catch (BaseException e) {
 			// That's fine
 			log.error(e.getMessage());

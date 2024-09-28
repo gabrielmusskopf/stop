@@ -21,6 +21,7 @@ public class Game implements Runnable {
 
 	private static final int DEFAULT_ROUNDS = 2;
 
+	private final LetterGenerator letterGenerator = new LetterGenerator();
 	private final List<Category> categories = List.of( // static for now
 			Category.NAME, Category.ANIMAL
 			//Category.ANIMAL, Category.COLOR, Category.WORD, Category.LOCATION, Category.OBJECT
@@ -186,17 +187,13 @@ public class Game implements Runnable {
 		}
 	}
 
-	private char generateRoundLetter() {
-		return 'a';
-	}
-
 	public boolean hasRounds() {
 		return rounds.size() < roundsCount;
 	}
 
 	public Round nextRound() {
 		currentRound++;
-		var round = new Round(generateRoundLetter(), roundsCount, categories, player1, player2);
+		var round = new Round(letterGenerator.generate(), roundsCount, categories, player1, player2);
 		this.rounds.add(round);
 		return round;
 	}
