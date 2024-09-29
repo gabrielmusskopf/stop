@@ -60,8 +60,8 @@ public class Round {
 				}
 				case STOP_REQUESTED -> {
 					log.info("Stop requested");
-					userTerminal.pause();
 					System.out.println("""
+													
 							_________________              ______
 							___  /_  ___/_  /_________________  /
 							__  /_____ \\_  __/  __ \\__  __ \\_  /

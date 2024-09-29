@@ -21,11 +21,6 @@ public class UserTerminal {
 		run(actionConsumer);
 	}
 
-	public void pause() {
-		System.out.println();
-		paused = true;
-	}
-
 	public void stop() {
 		running = false;
 		worker.interrupt();

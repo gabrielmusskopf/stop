@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +26,8 @@ public class ConnectionHandler implements AutoCloseable {
 
 	private final int originalPort;
 	private final Queue<Message> messageQueue = new LinkedList<>();
+
+	private final AtomicReference<ConnectionState> connectionState;
 	private final AtomicBoolean pullMessagesRunning = new AtomicBoolean(false);
 	private final AtomicBoolean heartBeatRunning = new AtomicBoolean(false);
 	private Thread heartBeatWorker;
@@ -33,12 +36,11 @@ public class ConnectionHandler implements AutoCloseable {
 	private Socket socket;
 	private BufferedInputStream in;
 	private DataOutputStream out;
-	private ConnectionState connectionState;
 
 	public ConnectionHandler(Socket socket, int originalPort) throws IOException {
 		setIO(socket);
 		this.originalPort = originalPort;
-		this.connectionState = ConnectionState.CONNECTED;
+		this.connectionState = new AtomicReference<>(ConnectionState.CONNECTED);
 
 		heartBeat();
 		pullMessages();
@@ -65,25 +67,27 @@ public class ConnectionHandler implements AutoCloseable {
 	}
 
 	public int read() throws IOException {
+		waitIfReconnecting();
+		if (!ConnectionState.CONNECTED.equals(connectionState.get())) {
+			throw new IOException("No longer connected");
+		}
 		final int read = in.read();
 		if (read == -1) {
 			reconnect();
 			return read();
 		}
-		if (!ConnectionState.CONNECTED.equals(connectionState)) {
-			throw new IOException("No longer connected");
-		}
 		return read;
 	}
 
 	public int read(byte[] b, int off, int len) throws IOException {
+		waitIfReconnecting();
+		if (!ConnectionState.CONNECTED.equals(connectionState.get())) {
+			throw new IOException("No longer connected");
+		}
 		final var read = in.read(b, off, len);
 		if (read == -1) {
 			reconnect();
 			return read();
-		}
-		if (!ConnectionState.CONNECTED.equals(connectionState)) {
-			throw new IOException("No longer connected");
 		}
 		return read;
 	}
@@ -92,7 +96,10 @@ public class ConnectionHandler implements AutoCloseable {
 		pullMessagesWorker = new Thread(() -> {
 			pullMessagesRunning.set(true);
 			log.debug("Pull messages thread started");
-			while (pullMessagesRunning.get() && !Thread.currentThread().isInterrupted()) {
+			while (pullMessagesRunning.get() && !ConnectionState.CLOSED.equals(connectionState.get()) && !Thread.currentThread().isInterrupted()) {
+				if (!waitIfReconnecting()) {
+					break;
+				}
 				if (messageQueue.isEmpty()) {
 					try {
 						Thread.sleep(TimeUnit.SECONDS.toMillis(1));
@@ -104,7 +111,7 @@ public class ConnectionHandler implements AutoCloseable {
 					continue;
 				}
 				log.debug("Message queue is not empty");
-				var msg = messageQueue.peek();
+				var msg = messageQueue.element();
 				try {
 					out.flush();
 					out.write(msg.serialize());
@@ -115,9 +122,6 @@ public class ConnectionHandler implements AutoCloseable {
 					log.error("Cound not send message {}: {}", msg, e.getMessage());
 				} catch (Exception e) {
 					log.error("Unexpected exception:", e);
-				}
-				while (ConnectionState.RECONNECTING.equals(connectionState)) {
-					// wait reconnection
 				}
 			}
 			log.debug("No longer connected, stop pulling messages");
@@ -130,7 +134,7 @@ public class ConnectionHandler implements AutoCloseable {
 		heartBeatWorker = new Thread(() -> {
 			heartBeatRunning.set(true);
 			var beatMessage = MessageFactory.beat();
-			while (heartBeatRunning.get() && !Thread.currentThread().isInterrupted()) {
+			while (heartBeatRunning.get() && !ConnectionState.CLOSED.equals(connectionState.get()) && !Thread.currentThread().isInterrupted()) {
 				try {
 					Thread.sleep(TimeUnit.SECONDS.toMillis(HEARTBEAT_DELAY_SEC));
 				} catch (InterruptedException e) {
@@ -138,19 +142,19 @@ public class ConnectionHandler implements AutoCloseable {
 					heartBeatRunning.set(false);
 					return;
 				}
+				if (!waitIfReconnecting()) {
+					break;
+				}
 				try {
 					out.flush();
 					out.write(beatMessage.serialize());
 					out.flush();
 					log.debug("Hearbeat send");
 				} catch (IOException e) {
-					if (ConnectionState.RECONNECTING.equals(connectionState)) {
+					if (ConnectionState.RECONNECTING.equals(connectionState.get())) {
 						log.debug("Starting reconnection");
 						reconnect();
 					}
-				}
-				while (ConnectionState.RECONNECTING.equals(connectionState)) {
-					// wait reconnection
 				}
 			}
 			log.debug("Stopping heartbeat");
@@ -159,9 +163,16 @@ public class ConnectionHandler implements AutoCloseable {
 		heartBeatWorker.start();
 	}
 
+	private boolean waitIfReconnecting() {
+		while (ConnectionState.RECONNECTING.equals(connectionState.get())) {
+			// wait reconnection
+		}
+		return ConnectionState.CONNECTED.equals(connectionState.get());
+	}
+
 	private void reconnect() {
 		log.debug("Reconnectig socket in {} tries", RECONNECTION_TRIES);
-		connectionState = ConnectionState.RECONNECTING;
+		connectionState.set(ConnectionState.RECONNECTING);
 		int remaining = 0;
 
 		while (remaining < RECONNECTION_TRIES) {
@@ -176,10 +187,10 @@ public class ConnectionHandler implements AutoCloseable {
 			}
 		}
 		if (remaining < RECONNECTION_TRIES) {
-			connectionState = ConnectionState.CONNECTED;
+			connectionState.set(ConnectionState.CONNECTED);
 			log.debug("Reconnected");
 		} else {
-			connectionState = ConnectionState.CLOSED;
+			connectionState.set(ConnectionState.CLOSED);
 			log.debug("Could not reconnect");
 		}
 	}
@@ -197,7 +208,7 @@ public class ConnectionHandler implements AutoCloseable {
 		if (!heartBeatWorker.isInterrupted()) heartBeatWorker.interrupt();
 		pullMessagesRunning.set(false);
 		if (!pullMessagesWorker.isInterrupted()) pullMessagesWorker.interrupt();
-		connectionState = ConnectionState.CLOSED;
+		connectionState.set(ConnectionState.CLOSED);
 		socket.close();
 		in.close();
 		out.close();
