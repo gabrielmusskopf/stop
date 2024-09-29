@@ -19,7 +19,7 @@ public class StopClient {
 
 	private static final boolean LOG_ENABLED = true;
 	private static final boolean LOG_TO_FILE = true;
-	private static final boolean LOG_TO_CONSOLE = true;
+	private static final boolean LOG_TO_CONSOLE = false;
 	private static final Level LOG_LEVEL = Level.DEBUG;
 
 	private static final String SERVER_ADDRESS = "localhost";
@@ -30,7 +30,7 @@ public class StopClient {
 		log.info("PID {}", ProcessHandle.current().pid());
 
 		log.info("===========================");
-		log.info("       STOP SERVER");
+		log.info("       STOP CLIENT");
 		log.info("===========================");
 
 		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var player = new Player(socket, SERVER_PORT)) {

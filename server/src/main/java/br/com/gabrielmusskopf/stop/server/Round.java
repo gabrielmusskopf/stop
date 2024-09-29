@@ -44,6 +44,13 @@ public class Round {
 
 	private boolean finished = false;
 
+	// lock 'stopRequested' after setting for the first time
+	private boolean stopLock = false;
+	@Getter
+	private boolean stopRequested = false;
+	@Getter
+	private Player stopRequestedPlayer;
+
 	public Round(char letter, int number, List<Category> categories, Player player1, Player player2) {
 		this.letter = letter;
 		this.number = number;
@@ -68,7 +75,7 @@ public class Round {
 
 		for (int i = 0; i < ROUND_PLAYERS_COUNT; i++) {
 			final var player = getPlayer(i);
-			final var future = executor.submit(() -> playerListenerTask(player));
+			final var future = executor.submit(() -> playerListener(player));
 			futures.add(future);
 		}
 
@@ -82,12 +89,17 @@ public class Round {
 		log.debug("All players threads are over for {}", id);
 	}
 
-	private void playerListenerTask(Player player) {
+	private void playerListener(Player player) {
 		try {
 			log.debug("Starting {} thread and waiting for client {} messages", id, player.getHost());
 
 			var roundPlayer = new RoundPlayer(categories, player);
-			roundPlayer.loop();
+			boolean stop = roundPlayer.loop(); // block until stop or round timeout
+			if (!stopLock && stop) {
+				stopRequestedPlayer = player;
+				stopRequested = true;
+				stopLock = true;
+			}
 
 			playersAnswers.put(player, roundPlayer.getAnswers());
 
@@ -128,7 +140,7 @@ public class Round {
 
 		var playerAnswer = getAnswer(category, player);
 		var otherPlayerAnswer = getAnswer(category, otherPlayer);
-		log.debug("Computing {} points", player.getName());
+		log.debug("Computing {} points for {}", player.getName(), category);
 
 		Score score;
 		if (playerAnswer == null || playerAnswer.charAt(0) != letter) {

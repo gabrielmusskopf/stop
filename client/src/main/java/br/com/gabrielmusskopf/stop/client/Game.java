@@ -29,7 +29,7 @@ public class Game {
 
 		waitServerConfirmation();
 		log.info("Client is connected to a game");
-		System.out.println("Bem-vindo ao STOP"); //TODO banana lib to make this pretty \o/
+		System.out.println("Bem-vindo ao STOP");
 
 		// here the player is already connected to a game
 		while (true) {

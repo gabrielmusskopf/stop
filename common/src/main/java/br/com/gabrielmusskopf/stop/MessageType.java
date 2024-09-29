@@ -17,7 +17,7 @@ public enum MessageType {
 	CATEGORY_WORD(8),
 	STOP(9),
 	PING(10),
-	WAIT_CONNECTION_CONFIRMATION(11);
+	STOP_REQUESTED(11);
 
 	private final int code;
 

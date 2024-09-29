@@ -20,6 +20,8 @@ public class RoundPlayer {
 	private final List<Category> categories;
 	private final Player player;
 	private final PlayerAnswers answers;
+	private boolean running = true;
+	@Getter
 	private boolean stop = false;
 
 	public RoundPlayer(List<Category> categories, Player player) throws IOException {
@@ -28,11 +30,11 @@ public class RoundPlayer {
 		this.answers = new PlayerAnswers();
 	}
 
-	public void loop() throws IOException {
+	public boolean loop() throws IOException {
 		while (!stop) {
 			if (Thread.currentThread().isInterrupted()) {
 				log.debug("Thread is interrupted");
-				return;
+				return false;
 			}
 			final var msg = RawMessage.readRawMessageOrUnknown(player);
 			if (MessageType.UNKNOWN.equals(msg.getType())) {
@@ -46,6 +48,7 @@ public class RoundPlayer {
 				default -> log.error("Unexpected client message received");
 			}
 		}
+		return true;
 	}
 
 	private void stop() {

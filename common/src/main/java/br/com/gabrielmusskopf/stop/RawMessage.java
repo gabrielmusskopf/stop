@@ -6,7 +6,9 @@ import java.net.SocketTimeoutException;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @RequiredArgsConstructor
 public class RawMessage {
@@ -19,6 +21,7 @@ public class RawMessage {
 	private final byte[] data;
 
 	public RawMessage(int size, int code, byte[] data) {
+		log.debug("New RawMessage with {size={}, code={}}", size, code);
 		this.size = size;
 		this.type = MessageType.fromCode(code);
 		this.data = data;

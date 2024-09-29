@@ -11,8 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserTerminal {
 
-	private Thread worker;
+	private static final char SYMBOL = '>';
 
+	private Thread worker;
 	private boolean running = false;
 	private boolean paused = false;
 
@@ -38,7 +39,7 @@ public class UserTerminal {
 				var scanner = new Scanner(System.in);
 				while (running && !Thread.currentThread().isInterrupted()) {
 					if (!paused) {
-						System.out.print("> ");
+						System.out.print(SYMBOL + " ");
 						paused = true;
 					}
 					if (nothingAvailable()) {

@@ -88,12 +88,20 @@ public class Game implements Runnable {
 			log.info("A round {} started", currentRound);
 
 			broadcast(MessageFactory.roundStarted(round.getLetter()));
-			round.start();
-			round.computePoints();
+			round.start(); // block until round finish
+			log.info("Round {} ended", currentRound);
 
+			round.computePoints();
 			round.getPlayersPoints().forEach((player, points) -> log.info("Player {} points: {}", player.getName(), points.getAnswersPoints()));
 
-			log.info("Round {} ended", currentRound);
+			if (round.isStopRequested()) {
+				var stopRequestPlayer = round.getStopRequestedPlayer();
+				log.info("Round {} ended with stop from {}", currentRound, stopRequestPlayer.getName());
+
+				var message = MessageFactory.stopRequested(stopRequestPlayer);
+				broadcast(message);
+			}
+
 			broadcast(MessageFactory.roundFinished(round));
 		}
 	}

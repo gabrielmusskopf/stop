@@ -54,10 +54,21 @@ public class Round {
 		// lister server messages
 		while (true) {
 			var msg = RawMessage.readRawMessageOrUnknown(player);
-			// TODO: broadcast when someone request a valid STOP
 			switch (msg.getType()) {
 				case UNKNOWN -> {
 					// read timed out
+				}
+				case STOP_REQUESTED -> {
+					log.info("Stop requested");
+					userTerminal.pause();
+					System.out.println("""
+							_________________              ______
+							___  /_  ___/_  /_________________  /
+							__  /_____ \\_  __/  __ \\__  __ \\_  /
+							 /_/ ____/ // /_ / /_/ /_  /_/ //_/
+							(_)  /____/ \\__/ \\____/_  .___/(_)
+							                       /_/
+							""");
 				}
 				case ROUND_FINISHED -> {
 					log.info("Round finished");
@@ -70,7 +81,7 @@ public class Round {
 					userTerminal.stop();
 					throw new ConnectionClosedException();
 				}
-				default -> log.error("Unexpected {} message. Ignoring.", msg.getType());
+				default -> log.warn("Unexpected {} message. Ignoring.", msg.getType());
 			}
 		}
 	}
@@ -139,15 +150,6 @@ public class Round {
 		var message = MessageFactory.stop();
 		player.send(message);
 		log.info("Player requested stop");
-		userTerminal.pause();
-		System.out.println("""
-				_________________              ______
-				___  /_  ___/_  /_________________  /
-				__  /_____ \\_  __/  __ \\__  __ \\_  /
-				 /_/ ____/ // /_ / /_/ /_  /_/ //_/
-				(_)  /____/ \\__/ \\____/_  .___/(_)
-				                       /_/
-				""");
 	}
 
 }
