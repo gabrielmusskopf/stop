@@ -13,6 +13,7 @@ import br.com.gabrielmusskopf.stop.MessageType;
 import br.com.gabrielmusskopf.stop.RawMessage;
 import br.com.gabrielmusskopf.stop.client.exception.ConnectionClosedException;
 import br.com.gabrielmusskopf.stop.client.exception.UnexpectedMessageException;
+import br.com.gabrielmusskopf.stop.client.message.response.GameEndedMessage;
 import br.com.gabrielmusskopf.stop.client.message.response.GameStartedMessage;
 import br.com.gabrielmusskopf.stop.client.message.response.PlayerConnectedMessage;
 import br.com.gabrielmusskopf.stop.client.message.response.RoundStartedMessage;
@@ -63,7 +64,19 @@ public class Game {
 					round.start();
 				}
 				case GAME_ENDED -> {
-					System.out.println("O jogo encerrou. Obrigado por jogar :)");
+					var message = new GameEndedMessage(msg.getData());
+					System.out.println("O jogo encerrou.");
+
+					int columnSize = 16;
+					System.out.printf("\n%sJogador 1%sJogador 2\n", " ".repeat(columnSize), " ".repeat(columnSize));
+					System.out.printf(
+							"%s%s%s%s\n",
+							" ".repeat(columnSize),
+							message.getPlayer1Points(),
+							" ".repeat(columnSize + 8), // = jogador 1
+							message.getPlayer2Points());
+
+					System.out.println("\nObrigado por jogar :)");
 					player.close();
 					return;
 				}
