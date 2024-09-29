@@ -15,8 +15,11 @@ public class Player implements AutoCloseable, Readable {
 	private final ConnectionHandler connectionHandler;
 	@Getter
 	private final String host;
+	@Getter
+	private final String name;
 
-	public Player(Socket socket, int originalPort) throws IOException {
+	public Player(String name, Socket socket, int originalPort) throws IOException {
+		this.name = name;
 		this.connectionHandler = new ConnectionHandler(socket, originalPort);
 		this.host = socket.getInetAddress().getHostAddress();
 	}

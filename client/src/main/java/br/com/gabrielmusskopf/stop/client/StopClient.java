@@ -2,12 +2,15 @@ package br.com.gabrielmusskopf.stop.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Scanner;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
 import br.com.gabrielmusskopf.stop.client.exception.BaseException;
+import br.com.gabrielmusskopf.stop.client.message.MessageFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -33,15 +36,24 @@ public class StopClient {
 		log.info("       STOP CLIENT");
 		log.info("===========================");
 
-		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var player = new Player(socket, SERVER_PORT)) {
-			System.out.println("""
-					   _____ __
-					  / ___// /_____  ____
-					  \\__ \\/ __/ __ \\/ __ \\
-					 ___/ / /_/ /_/ / /_/ /
-					/____/\\__/\\____/ .___/
-					              /_/
-					""");
+		System.out.println("""
+				   _____ __
+				  / ___// /_____  ____
+				  \\__ \\/ __/ __ \\/ __ \\
+				 ___/ / /_/ /_/ / /_/ /
+				/____/\\__/\\____/ .___/
+				              /_/
+				""");
+
+		var scanner = new Scanner(System.in);
+		String name;
+		do {
+			System.out.printf("Qual seu nome?\n%s ", UserTerminal.SYMBOL);
+			name = scanner.nextLine().trim();
+		} while (StringUtils.isBlank(name));
+
+		try (var socket = new Socket(SERVER_ADDRESS, SERVER_PORT); var player = new Player(name, socket, SERVER_PORT)) {
+			player.send(MessageFactory.auth(name));
 			var game = new Game(player);
 			game.start();
 			log.info("The joy is over, see you space cowboy");
@@ -91,4 +103,5 @@ public class StopClient {
 			log.debug("{} ({}) appender dettached", appender.getName(), appender.getClass().getSimpleName());
 		}
 	}
+
 }

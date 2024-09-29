@@ -51,6 +51,8 @@ public class Round {
 		categories.forEach((number, category) -> System.out.printf("%d. %s%s", number, category, " ".repeat(8)));
 		System.out.println();
 
+		userTerminal.start();
+
 		// lister server messages
 		while (true) {
 			var msg = RawMessage.readRawMessageOrUnknown(player);
@@ -103,7 +105,7 @@ public class Round {
 
 		// TODO: make columnSize variable
 		int columnSize = 16;
-		System.out.printf("\nRodada %d finalizou\n", roundFinishedMessage.getNumber());
+		System.out.printf("Rodada %d finalizou\n", roundFinishedMessage.getNumber());
 		System.out.printf("\n%sJogador 1%sJogador 2\n", " ".repeat(columnSize), " ".repeat(columnSize));
 
 		roundFinishedMessage.getPlayerAnswers().forEach((category, answers) -> {

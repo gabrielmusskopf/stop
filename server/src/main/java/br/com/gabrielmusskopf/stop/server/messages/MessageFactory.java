@@ -11,11 +11,11 @@ import br.com.gabrielmusskopf.stop.server.messages.request.ConnectionClosedMessa
 import br.com.gabrielmusskopf.stop.server.messages.request.GameEndedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.GameStartedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.PingMessage;
+import br.com.gabrielmusskopf.stop.server.messages.request.PlayerConnectedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.RoundFinishedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.RoundStartedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.StopRequestedMessage;
 import br.com.gabrielmusskopf.stop.server.messages.request.WaitingPlayersMessage;
-import br.com.gabrielmusskopf.stop.server.messages.response.PlayerConnectedMessage;
 
 public abstract class MessageFactory {
 

@@ -29,6 +29,7 @@ public class Game {
 		log.info("Connected to Stop server");
 
 		waitServerConfirmation();
+
 		log.info("Client is connected to a game");
 		System.out.println("Bem-vindo ao STOP");
 
@@ -37,7 +38,6 @@ public class Game {
 			// game state machine
 			var msg = RawMessage.readRawMessageOrUnknown(player);
 			switch (msg.getType()) {
-				// TODO: Receive game score
 				case PLAYER_CONNECTED -> {
 					// player restart socket connection
 				}
@@ -49,18 +49,18 @@ public class Game {
 					System.out.println("Aguardando outro jogador para iniciar a partida");
 				}
 				case GAME_STARTED -> {
-					var gsm = new GameStartedMessage(msg.getData());
-					log.info("Game has started. The categories are {}", gsm.getCategories());
-					System.out.printf("O jogo iniciou, as categorias são %s", gsm.getCategoriesPretty());
-					categories = gsm.getCategories();
+					var message = new GameStartedMessage(msg.getData());
+					log.info("Game has started. The categories are {}", message.getCategories());
+					System.out.printf("O jogo iniciou, as categorias são %s", message.getCategoriesPretty());
+					categories = message.getCategories();
 				}
 				case ROUND_STARTED -> {
 					if (categories == null || categories.isEmpty()) {
 						log.debug("Cannot start round without categories. Client will ignore message.");
 						return;
 					}
-					var m = new RoundStartedMessage(msg.getData());
-					var round = new Round(m.getLetter(), player, categories);
+					var message = new RoundStartedMessage(msg.getData());
+					var round = new Round(message.getLetter(), player, categories);
 					round.start();
 				}
 				case GAME_ENDED -> {

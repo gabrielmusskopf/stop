@@ -10,6 +10,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import br.com.gabrielmusskopf.stop.Message;
@@ -21,13 +22,13 @@ import br.com.gabrielmusskopf.stop.server.messages.MessageFactory;
 public class Player implements AutoCloseable, Readable {
 
 	@Getter
-	private final String name = "player-" + RandomStringUtils.secure().nextAlphabetic(5);
-	@Getter
 	private final String host;
 	private final Socket socket;
 	private final BufferedInputStream in;
 	private final OutputStream out;
-
+	@Getter
+	@Setter
+	private String name = "player-" + RandomStringUtils.secure().nextAlphabetic(5);
 	private boolean isConnected = false;
 
 	public Player(Socket socket) throws IOException {

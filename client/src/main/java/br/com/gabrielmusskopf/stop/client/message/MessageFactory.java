@@ -2,6 +2,7 @@ package br.com.gabrielmusskopf.stop.client.message;
 
 import br.com.gabrielmusskopf.stop.Category;
 import br.com.gabrielmusskopf.stop.Message;
+import br.com.gabrielmusskopf.stop.client.message.request.AuthMessage;
 import br.com.gabrielmusskopf.stop.client.message.request.BeatMessage;
 import br.com.gabrielmusskopf.stop.client.message.request.SendWordMessage;
 import br.com.gabrielmusskopf.stop.client.message.request.StopMessage;
@@ -18,6 +19,10 @@ public abstract class MessageFactory {
 
 	public static Message beat() {
 		return new BeatMessage();
+	}
+
+	public static Message auth(String name) {
+		return new AuthMessage(name);
 	}
 
 }

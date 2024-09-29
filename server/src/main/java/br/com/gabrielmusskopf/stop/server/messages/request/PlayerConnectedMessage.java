@@ -1,4 +1,4 @@
-package br.com.gabrielmusskopf.stop.server.messages.response;
+package br.com.gabrielmusskopf.stop.server.messages.request;
 
 import lombok.RequiredArgsConstructor;
 

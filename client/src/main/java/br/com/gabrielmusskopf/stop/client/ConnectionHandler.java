@@ -132,6 +132,7 @@ public class ConnectionHandler implements AutoCloseable {
 
 	private void heartBeat() {
 		heartBeatWorker = new Thread(() -> {
+			log.debug("Heartbeat thread started");
 			heartBeatRunning.set(true);
 			var beatMessage = MessageFactory.beat();
 			while (heartBeatRunning.get() && !ConnectionState.CLOSED.equals(connectionState.get()) && !Thread.currentThread().isInterrupted()) {

@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserTerminal {
 
-	private static final char SYMBOL = '>';
+	public static final char SYMBOL = '>';
 
 	private Thread worker;
 	private boolean running = false;
@@ -19,6 +19,10 @@ public class UserTerminal {
 
 	public UserTerminal(Consumer<UserAction> actionConsumer) {
 		run(actionConsumer);
+	}
+
+	public void start() {
+		worker.start();
 	}
 
 	public void stop() {
@@ -30,8 +34,8 @@ public class UserTerminal {
 		this.worker = new Thread(() -> {
 			running = true;
 			paused = false;
+			var scanner = new Scanner(System.in);
 			try {
-				var scanner = new Scanner(System.in);
 				while (running && !Thread.currentThread().isInterrupted()) {
 					if (!paused) {
 						System.out.print(SYMBOL + " ");
@@ -65,8 +69,6 @@ public class UserTerminal {
 				System.out.println();
 			}
 		});
-
-		this.worker.start();
 	}
 
 	private void waitAvailable() throws IOException, InterruptedException {
