@@ -31,7 +31,7 @@ public class Game {
 		waitServerConfirmation();
 
 		log.info("Client is connected to a game");
-		System.out.println("Bem-vindo ao STOP");
+		System.out.println("\nBem-vindo ao STOP");
 
 		// here the player is already connected to a game
 		while (true) {
@@ -51,7 +51,11 @@ public class Game {
 				case GAME_STARTED -> {
 					var message = new GameStartedMessage(msg.getData());
 					log.info("Game has started. The categories are {}", message.getCategories());
-					System.out.printf("O jogo iniciou, as categorias são %s", message.getCategoriesPretty());
+					System.out.printf(
+							"O jogo com os jogadores '%s' e '%s' iniciou, as categorias são: %s\n",
+							message.getPlayer1(),
+							message.getPlayer2(),
+							message.getCategoriesPretty());
 					categories = message.getCategories();
 				}
 				case ROUND_STARTED -> {
@@ -65,19 +69,7 @@ public class Game {
 				}
 				case GAME_ENDED -> {
 					var message = new GameEndedMessage(msg.getData());
-					System.out.println("O jogo encerrou.");
-
-					int columnSize = 16;
-					System.out.printf("\n%sJogador 1%sJogador 2\n", " ".repeat(columnSize), " ".repeat(columnSize));
-					System.out.printf(
-							"%s%s%s%s\n",
-							" ".repeat(columnSize),
-							message.getPlayer1Points(),
-							" ".repeat(columnSize + 8), // = jogador 1
-							message.getPlayer2Points());
-
-					System.out.println("\nObrigado por jogar :)");
-					player.close();
+					endGame(message);
 					return;
 				}
 				case CONNECTION_CLOSED -> {
@@ -90,6 +82,75 @@ public class Game {
 				default -> log.warn("Unexpected message of type {}. Ignoring it.", msg.getType());
 			}
 		}
+	}
+
+	private void endGame(GameEndedMessage message) throws IOException {
+		System.out.println("O jogo encerrou. Placar:");
+
+		final var p1Name = message.getPlayer1();
+		final var p2Name = message.getPlayer2();
+		final var p1Points = message.getPlayer1Points();
+		final var p2Points = message.getPlayer2Points();
+
+		int columnSize = 16;
+		if (p1Name.length() > columnSize) {
+			columnSize = p1Name.length();
+		}
+		if (p2Name.length() > columnSize) {
+			columnSize = p2Name.length();
+		}
+		int slashesCount = 3;
+		int spacesArroundSlashes = 4;
+		System.out.println("-".repeat(slashesCount + spacesArroundSlashes + 2 * columnSize));
+		System.out.printf(
+				"| %s%s | %s%s |\n",
+				p1Name,
+				" ".repeat(columnSize - p1Name.length()),
+				p2Name,
+				" ".repeat(columnSize - p2Name.length())
+		);
+		System.out.println("-".repeat(slashesCount + spacesArroundSlashes + 2 * columnSize));
+		System.out.printf(
+				"| %s%s | %s%s |\n",
+				p1Points,
+				" ".repeat(columnSize - String.valueOf(p1Points).length()),
+				p2Points,
+				" ".repeat(columnSize - String.valueOf(p2Points).length())
+		);
+		System.out.println("-".repeat(slashesCount + spacesArroundSlashes + 2 * columnSize));
+
+		if (p1Points == p2Points) {
+			System.out.println("""
+					 _____                       _
+					| ____|_ __ ___  _ __   __ _| |_ ___
+					|  _| | '_ ` _ \\| '_ \\ / _` | __/ _ \\
+					| |___| | | | | | |_) | (_| | ||  __/
+					|_____|_| |_| |_| .__/ \\__,_|\\__\\___|
+									|_|
+					""");
+		} else {
+			var winner = p1Points > p2Points ? p1Name : p2Name;
+			if (player.getName().equals(winner)) {
+				System.out.println("""
+						__     __
+						\\ \\   / /__ _ __   ___ ___ _   _
+						 \\ \\ / / _ \\ '_ \\ / __/ _ \\ | | |
+						  \\ V /  __/ | | | (_|  __/ |_| |
+						   \\_/ \\___|_| |_|\\___\\___|\\__,_|
+						""");
+			} else {
+				System.out.println("""
+						 ____              _
+						|  _ \\ ___ _ __ __| | ___ _   _
+						| |_) / _ \\ '__/ _` |/ _ \\ | | |
+						|  __/  __/ | | (_| |  __/ |_| |
+						|_|   \\___|_|  \\__,_|\\___|\\__,_|
+						""");
+			}
+		}
+
+		System.out.println("\nObrigado por jogar :)");
+		player.close();
 	}
 
 	// wait for the server to confirm if the client was able to join a game

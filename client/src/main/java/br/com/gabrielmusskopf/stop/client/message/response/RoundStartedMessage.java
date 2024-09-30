@@ -16,7 +16,8 @@ public class RoundStartedMessage {
 	private final char letter;
 
 	public RoundStartedMessage(byte[] data) {
-		this.letter = (char) data[0];
+		int i = 0;
+		this.letter = (char) data[i];
 	}
 
 }

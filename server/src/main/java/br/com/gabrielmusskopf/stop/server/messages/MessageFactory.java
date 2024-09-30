@@ -27,13 +27,12 @@ public abstract class MessageFactory {
 		return new WaitingPlayersMessage();
 	}
 
-	// TODO: move to another message
-	public static Message gameStarted(List<Category> categories) {
-		return new GameStartedMessage(categories);
+	public static Message gameStarted(List<Category> categories, Player player1, Player player2) {
+		return new GameStartedMessage(categories, player1, player2);
 	}
 
-	public static Message gameEnded(List<Round> rounds) {
-		return new GameEndedMessage(rounds);
+	public static Message gameEnded(List<Round> rounds, Player player1, Player player2) {
+		return new GameEndedMessage(rounds, player1, player2);
 	}
 
 	public static Message closeConnection() {

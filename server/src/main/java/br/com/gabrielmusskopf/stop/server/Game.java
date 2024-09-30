@@ -65,13 +65,13 @@ public class Game implements Runnable {
 		try {
 			log.info("The game '{}' is starting. Ongoing games: {}", identifier, GamePool.ongoingGamesCount());
 			gameState = GameState.RUNNING;
-			broadcast(MessageFactory.gameStarted(categories));
+			broadcast(MessageFactory.gameStarted(categories, player1, player2));
 
 			gameLoop();
 
 			gameState = GameState.FINISHED;
 			GamePool.endGame();
-			broadcast(MessageFactory.gameEnded(rounds));
+			broadcast(MessageFactory.gameEnded(rounds, player1, player2));
 			disconnectAll();
 			log.info("The game '{}' finished. Ongoing games: {}", identifier, GamePool.ongoingGamesCount());
 
